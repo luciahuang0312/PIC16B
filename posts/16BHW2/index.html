@@ -280,7 +280,7 @@ cd TMDB_scraper</code></pre>
 <span id="cb4-54"><a href="#cb4-54" aria-hidden="true" tabindex="-1"></a><span class="co">        """</span></span>
 <span id="cb4-55"><a href="#cb4-55" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Extracts the actor's name</span></span>
 <span id="cb4-56"><a href="#cb4-56" aria-hidden="true" tabindex="-1"></a>        actor_name <span class="op">=</span> response.css(<span class="st">'h2.title a::text'</span>).get()</span>
-<span id="cb4-57"><a href="#cb4-57" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Directly gets all texts of this structure</span></span>
+<span id="cb4-57"><a href="#cb4-57" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Directly gets all texts of this structure by using xpath a[@class='tooltip']/bdi</span></span>
 <span id="cb4-58"><a href="#cb4-58" aria-hidden="true" tabindex="-1"></a>        movies <span class="op">=</span> response.xpath(<span class="st">'//a[@class="tooltip"]/bdi/text()'</span>).getall()</span>
 <span id="cb4-59"><a href="#cb4-59" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Extracts the title of the work</span></span>
 <span id="cb4-60"><a href="#cb4-60" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> title <span class="kw">in</span> movies:</span>
