@@ -192,7 +192,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="homework-4-two-dimensinal-heat-diffusion-simulation-multiple-approaches" class="level1">
 <h1>Homework 4: Two-Dimensinal Heat Diffusion Simulation: Multiple Approaches</h1>
 <p>In this blog, four approaches of simulating a two-dimensional heat diffusion will be presented: matrix multiplication, sparse matrix in JAX, direction operation with numpy, and with jax.</p>
-<p>This introductory explanation of the mathematical concept is derived from Professor Ko’s Homework Blog <img src="index_files/figure-html/cell-3-1-Screen Shot 2024-02-23 at 12.12.40 AM.png" class="img-fluid" alt="Screen Shot 2024-02-23 at 12.12.40 AM.png"></p>
+<p>This introductory explanation of the mathematical concept is derived from Professor Ko’s Homework Blog <img src="attachment:Screen%20Shot%202024-02-23%20at%2012.12.40%20AM.png" class="img-fluid" alt="Screen Shot 2024-02-23 at 12.12.40 AM.png"></p>
 <div id="cell-4" class="cell" data-execution_count="13">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>N <span class="op">=</span> <span class="dv">101</span> <span class="co"># N is the dimension of the grid</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>epsilon <span class="op">=</span> <span class="fl">0.2</span></span>
@@ -213,7 +213,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <section id="approach-1-simulation-with-matrix-multiplication" class="level2">
 <h2 class="anchored" data-anchor-id="approach-1-simulation-with-matrix-multiplication">Approach 1: Simulation With Matrix Multiplication</h2>
-<p>We will first uses matrix-vector multiplication to simulate the heat diffusion in the 2D space. The vector here is created by flattening the current solution <img src="index_files/figure-html/cell-6-1-Screen Shot 2024-02-23 at 12.25.11 AM.png" class="img-fluid" alt="Screen Shot 2024-02-23 at 12.25.11 AM.png"> . Each iteration of the update is given by:</p>
+<p>We will first uses matrix-vector multiplication to simulate the heat diffusion in the 2D space. The vector here is created by flattening the current solution <img src="attachment:Screen%20Shot%202024-02-23%20at%2012.25.11%20AM.png" class="img-fluid" alt="Screen Shot 2024-02-23 at 12.25.11 AM.png"> . Each iteration of the update is given by:</p>
 <div id="cell-7" class="cell" data-execution_count="66">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> advance_time_matvecmul(A, u, epsilon):</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Advances the simulation by one timestep, via matrix-vector multiplication</span></span>
