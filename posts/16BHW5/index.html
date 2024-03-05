@@ -1,0 +1,1343 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.4.545">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>PIC16B - Tutorial 5: Image Classification in Keras through Tensorflow Datasets</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed fullcontent">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top quarto-banner">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">PIC16B</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://twitter.com"> <i class="bi bi-twitter" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+          <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<header id="title-block-header" class="quarto-title-block default page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-body">
+      <h1 class="title">Tutorial 5: Image Classification in Keras through Tensorflow Datasets</h1>
+                      </div>
+  </div>
+    
+  
+  <div class="quarto-title-meta">
+
+      
+    
+      
+    </div>
+    
+  
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    
+<!-- main -->
+<main class="content quarto-banner-title-block" id="quarto-document-content">
+
+
+
+
+
+<section id="tutorial-5-image-classification-in-keras-through-tensorflow-datasets" class="level3">
+<h3 class="anchored" data-anchor-id="tutorial-5-image-classification-in-keras-through-tensorflow-datasets">Tutorial 5: Image Classification in Keras through Tensorflow Datasets</h3>
+<p>This blog tutorial will present different approaches to conduct image classification in Keras with data fed through Tensorflow Datasets.</p>
+</section>
+<section id="background-knowledge" class="level1">
+<h1>Background Knowledge:</h1>
+<p>· <strong>Keras</strong>: Keras 3 functions as an independent library capable of interfacing with various computational backends, including TensorFlow, PyTorch, and JAX, offering flexibility in choosing the underlying framework for deep learning projects.</p>
+<p>· <strong>TensorFlow Datasets</strong>: This feature offers a streamlined approach to managing datasets for training, validation, and testing purposes, enhancing the efficiency of data handling in machine learning workflows.</p>
+<p>· <strong>Data augmentation</strong>: Through data augmentation, we can generate additional variations of our dataset, enhancing the model’s ability to learn and generalize from diverse patterns more effectively.</p>
+<p>· <strong>Transfer learning</strong>: Transfer learning uses the knowledge gained from previously trained models to tackle new, related problems, saving time and computational resources during model development.</p>
+</section>
+<section id="instructions" class="level1">
+<h1>Instructions:</h1>
+<p><strong>1.Load Packages and Obtain Data</strong></p>
+<p>We firstly include a block that includes all import statements with a brief introduction of their implications:</p>
+<div id="cell-6" class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os <span class="co"># 'os' allows interaction wth the operation system</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>os.environ[<span class="st">"KERAS_BACKEND"</span>] <span class="op">=</span> <span class="st">"torch"</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> keras <span class="im">import</span> utils <span class="co"># 'utils' contains utilities for data processing and sequence propocessing</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> tensorflow_datasets <span class="im">as</span> tfds <span class="co"># TFDS library is a collection of dataset to use with TensorFlow</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt <span class="co"># 'pyplot' in 'matplotlib' library creates data visualization</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np <span class="co"># 'numpy' supports mathematical operations</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> random <span class="im">import</span> randint <span class="co"># 'randit' generates randome integers with a specified range</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> keras <span class="co"># 'keras' supports deep neural networks experimentation</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> keras <span class="im">import</span> layers <span class="co"># 'layers' is building blocks of networks in Keras, contains functions like 'Dense', 'Conv2D', etc.</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>By utilizing Kaggle, we gain access to a dataset featuring labeled images of cats and dogs. By executing the code below, we successfully establish datasets designated for training, validation, and testing purposes.</p>
+<div id="cell-8" class="cell" data-outputid="435bd574-bde5-4eee-8275-9b6a17fb8380">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>train_ds, validation_ds, test_ds <span class="op">=</span> tfds.load(</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"cats_vs_dogs"</span>,</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 40% for training, 10% for validation, and 10% for test (the rest unused)</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    split<span class="op">=</span>[<span class="st">"train[:40%]"</span>, <span class="st">"train[40%:50%]"</span>, <span class="st">"train[50%:60%]"</span>],</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    as_supervised<span class="op">=</span><span class="va">True</span>,  <span class="co"># Include labels</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Number of training samples: </span><span class="sc">{</span>train_ds<span class="sc">.</span>cardinality()<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Number of validation samples: </span><span class="sc">{</span>validation_ds<span class="sc">.</span>cardinality()<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Number of test samples: </span><span class="sc">{</span>test_ds<span class="sc">.</span>cardinality()<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Number of training samples: 9305
+Number of validation samples: 2326
+Number of test samples: 2326</code></pre>
+</div>
+</div>
+<p>We use the following code to resize all different sized images in datasets to a fixed size of 150x150</p>
+<div id="cell-10" class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>resize_fn <span class="op">=</span> keras.layers.Resizing(<span class="dv">150</span>, <span class="dv">150</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>train_ds <span class="op">=</span> train_ds.<span class="bu">map</span>(<span class="kw">lambda</span> x, y: (resize_fn(x), y))</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>validation_ds <span class="op">=</span> validation_ds.<span class="bu">map</span>(<span class="kw">lambda</span> x, y: (resize_fn(x), y))</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>test_ds <span class="op">=</span> test_ds.<span class="bu">map</span>(<span class="kw">lambda</span> x, y: (resize_fn(x), y))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>The next block uses batch_size to determine “how many data points are gathered from the directory”:</p>
+<div id="cell-12" class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> tensorflow <span class="im">import</span> data <span class="im">as</span> tf_data</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>batch_size <span class="op">=</span> <span class="dv">64</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>train_ds <span class="op">=</span> train_ds.batch(batch_size).prefetch(tf_data.AUTOTUNE).cache()</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>validation_ds <span class="op">=</span> validation_ds.batch(batch_size).prefetch(tf_data.AUTOTUNE).cache()</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>test_ds <span class="op">=</span> test_ds.batch(batch_size).prefetch(tf_data.AUTOTUNE).cache()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>We now write a function to create two-row visualization with one row of cats and one row of dogs</p>
+<div id="cell-14" class="cell" data-outputid="0965b583-f5b2-4446-9751-e453cdb71da1">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>class_names <span class="op">=</span> [<span class="st">'cat'</span>, <span class="st">'dog'</span>]</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> visualize(ds):</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  plt.figure(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">10</span>)) <span class="co">#figure size</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> images, labels <span class="kw">in</span> ds.take(<span class="dv">1</span>):  <span class="co"># Take one batch at this step</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>        cat_count <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>        dog_count <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>        <span class="cf">while</span> cat_count <span class="op">&lt;</span> <span class="dv">3</span> <span class="kw">or</span> dog_count <span class="op">&lt;</span> <span class="dv">3</span>:</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>            i <span class="op">=</span> randint(<span class="dv">0</span>, <span class="dv">63</span>)  <span class="co"># We before set batch size to 64</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> cat_count <span class="op">&lt;</span> <span class="dv">3</span> <span class="kw">and</span> labels[i] <span class="op">==</span> <span class="dv">0</span>:  <span class="co"># If we need more cats and found one</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>                ax <span class="op">=</span> plt.subplot(<span class="dv">2</span>, <span class="dv">3</span>, cat_count <span class="op">+</span> <span class="dv">1</span>) <span class="co"># plot the cat image</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>                plt.imshow(images[i].numpy().astype(<span class="st">"uint8"</span>)) <span class="co"># show the image</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>                plt.title(class_names[labels[i]]) <span class="co"># set the title of images</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>                cat_count <span class="op">+=</span> <span class="dv">1</span> <span class="co"># increment the cat counter</span></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>            <span class="cf">elif</span> dog_count <span class="op">&lt;</span> <span class="dv">3</span> <span class="kw">and</span> labels[i] <span class="op">==</span> <span class="dv">1</span>:  <span class="co"># If we need more dogs and found one</span></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>                ax <span class="op">=</span> plt.subplot(<span class="dv">2</span>, <span class="dv">3</span>, dog_count <span class="op">+</span> <span class="dv">4</span>)</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>                plt.imshow(images[i].numpy().astype(<span class="st">"uint8"</span>))</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>                plt.title(class_names[labels[i]])</span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>                dog_count <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> cat_count <span class="op">==</span> <span class="dv">3</span> <span class="kw">and</span> dog_count <span class="op">==</span> <span class="dv">3</span>:</span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>                <span class="cf">break</span>  <span class="co"># Exit once 3 cats and 3 dogs have been displayed</span></span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>  plt.tight_layout() <span class="co"># adjust layout</span></span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>  plt.show()</span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>visualize(train_ds)<span class="co"># Update the function call</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/cell-6-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The following code will create an iterator called labels_iterator:</p>
+<pre><code>labels_iterator= train_ds.unbatch().map(lambda image, label: label).as_numpy_iterator()</code></pre>
+<p>We will compute the number of image in the training set with label 0 (“cat”) and label 1 (“dog”). In the baseline machine learning model, we will examine how accurate it works in our case. Baseline model will be our benchmark for improvement.</p>
+<div id="cell-16" class="cell" data-outputid="30f1130c-cc98-4c2c-c6ec-f7a87bc94de1">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>labels_iterator <span class="op">=</span> train_ds.unbatch().<span class="bu">map</span>(<span class="kw">lambda</span> image, label: label).as_numpy_iterator()</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Initialize counters for each label</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>label_0_cat <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>label_1_dog <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> label <span class="kw">in</span> labels_iterator: <span class="co"># iterate through the labels_iterator to count labels</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> label <span class="op">==</span> <span class="dv">0</span>:</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>        label_0_cat <span class="op">+=</span> <span class="dv">1</span> <span class="co"># add counts</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">elif</span> label <span class="op">==</span> <span class="dv">1</span>:</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>        label_1_dog <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Number of 'cat' images (label 0): </span><span class="sc">{</span>label_0_cat<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Number of 'dog' images (label 1): </span><span class="sc">{</span>label_1_dog<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Number of 'cat' images (label 0): 4637
+Number of 'dog' images (label 1): 4668</code></pre>
+</div>
+</div>
+<p>4668 &gt; 4637, the baseline accuracy is calculated by “the most frequent label”/ “total label”; In this case, it is calculated by dog/(dog+cat)</p>
+<div id="cell-18" class="cell" data-outputid="90a0203c-7b9a-4979-e137-39883321a99d">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"The baseline accuracy is"</span>, label_1_dog<span class="op">/</span>(label_1_dog<span class="op">+</span>label_0_cat))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>The baseline accuracy is 0.5016657710908113</code></pre>
+</div>
+</div>
+<p><strong>2. Model 1</strong></p>
+<p>“The simplest way to make a model is by using the <code>keras.models.Sequential</code> API, which allows you to construct a model by simply passing a list of layers.”</p>
+<p>Let’s start to construct model 1 (a keras.Sequential model) using at least two Conv2D layers, at least two MaxPooling2D layers, at least one Flatten layer, at least one Dense layer, and at least one Dropout layer.</p>
+<div id="cell-22" class="cell" data-outputid="9faa40e4-2765-404a-bdeb-f95e8db6fcbe" data-execution_count="145">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> tensorflow <span class="im">as</span> tf</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> tensorflow.keras <span class="im">import</span> layers, models</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="co">"""</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="co">Conv2D layer: creates convolution kernal, produces a tensor of outputs</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="co">MaxPooling 2D layer: reduces the dimensionality of the featured maps</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="co">Flatten layer: Converts 2D feature maps into 1D feature vector</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="co">Dropout layer: reduces overfitting by dropping a portion of the input</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a><span class="co">Dense layer: performs classification based on processed previous layers</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a><span class="co">ReLu: applied element-wise, directly output positive numbers, if negative, output zero,</span></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a><span class="co">"""</span></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>model1 <span class="op">=</span> keras.models.Sequential([</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>    <span class="co"># define shape:</span></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>    layers.Input((<span class="dv">150</span>,<span class="dv">150</span>,<span class="dv">3</span>)), <span class="co">#the shape indicates the model input images 150 pixesl in height, 150 pixels in width, 3 channels (RGB color channels)</span></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>    layers.Dropout(<span class="fl">0.3</span>), <span class="co"># randomly drop out 30% of the input</span></span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>    layers.Conv2D(<span class="dv">32</span>, (<span class="dv">3</span>, <span class="dv">3</span>), activation<span class="op">=</span><span class="st">'relu'</span>),</span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>    <span class="co">#learning a total of 32 filters</span></span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>    layers.MaxPooling2D((<span class="dv">2</span>, <span class="dv">2</span>)),</span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>    <span class="co">#use Max Pooling to reduce the spatial dimensions of the output volume</span></span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>    layers.Conv2D(<span class="dv">64</span>, (<span class="dv">3</span>, <span class="dv">3</span>), activation<span class="op">=</span><span class="st">'relu'</span>), <span class="co">#relu: recitified linear unit</span></span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>    layers.MaxPooling2D((<span class="dv">2</span>, <span class="dv">2</span>)),</span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>    layers.Flatten(), <span class="co">#flattens the input, makes the multidimensional input 1D</span></span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>    layers.Dense(<span class="dv">64</span>, activation<span class="op">=</span><span class="st">'relu'</span>),</span>
+<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a>    layers.Dense(<span class="dv">64</span>, activation<span class="op">=</span><span class="st">'sigmoid'</span>) <span class="co"># sigmoid for the cat/dog binary classification</span></span>
+<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a>])</span>
+<span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a>model1.summary()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Model: "sequential_39"
+_________________________________________________________________
+ Layer (type)                Output Shape              Param #   
+=================================================================
+ dropout_33 (Dropout)        (None, 150, 150, 3)       0         
+                                                                 
+ conv2d_70 (Conv2D)          (None, 148, 148, 32)      896       
+                                                                 
+ max_pooling2d_64 (MaxPooli  (None, 74, 74, 32)        0         
+ ng2D)                                                           
+                                                                 
+ conv2d_71 (Conv2D)          (None, 72, 72, 64)        18496     
+                                                                 
+ max_pooling2d_65 (MaxPooli  (None, 36, 36, 64)        0         
+ ng2D)                                                           
+                                                                 
+ flatten_39 (Flatten)        (None, 82944)             0         
+                                                                 
+ dense_72 (Dense)            (None, 64)                5308480   
+                                                                 
+ dense_73 (Dense)            (None, 64)                4160      
+                                                                 
+=================================================================
+Total params: 5332032 (20.34 MB)
+Trainable params: 5332032 (20.34 MB)
+Non-trainable params: 0 (0.00 Byte)
+_________________________________________________________________</code></pre>
+</div>
+</div>
+<p>We first complile the model and then train the model</p>
+<div id="cell-24" class="cell" data-outputid="aa5ff000-8c00-44fa-c992-dbe3424b280c">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>model1.<span class="bu">compile</span>(optimizer<span class="op">=</span><span class="st">'adam'</span>,</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>              loss<span class="op">=</span><span class="st">'sparse_categorical_crossentropy'</span>,</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>              metrics<span class="op">=</span>[<span class="st">'accuracy'</span>])</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>history <span class="op">=</span> model1.fit(train_ds, epochs<span class="op">=</span><span class="dv">20</span>, validation_data<span class="op">=</span>validation_ds)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Epoch 1/20
+146/146 [==============================] - 16s 75ms/step - loss: 15.2972 - accuracy: 0.5080 - val_loss: 0.6908 - val_accuracy: 0.5821
+Epoch 2/20
+146/146 [==============================] - 5s 33ms/step - loss: 0.7036 - accuracy: 0.6230 - val_loss: 0.6735 - val_accuracy: 0.5997
+Epoch 3/20
+146/146 [==============================] - 5s 32ms/step - loss: 0.5900 - accuracy: 0.6874 - val_loss: 0.7037 - val_accuracy: 0.5924
+Epoch 4/20
+146/146 [==============================] - 5s 32ms/step - loss: 0.5278 - accuracy: 0.7368 - val_loss: 0.7068 - val_accuracy: 0.6135
+Epoch 5/20
+146/146 [==============================] - 5s 32ms/step - loss: 0.4638 - accuracy: 0.7823 - val_loss: 0.7622 - val_accuracy: 0.6144
+Epoch 6/20
+146/146 [==============================] - 5s 32ms/step - loss: 0.4135 - accuracy: 0.8124 - val_loss: 0.8646 - val_accuracy: 0.6045
+Epoch 7/20
+146/146 [==============================] - 5s 34ms/step - loss: 0.4326 - accuracy: 0.8048 - val_loss: 0.9029 - val_accuracy: 0.6230
+Epoch 8/20
+146/146 [==============================] - 5s 32ms/step - loss: 0.4031 - accuracy: 0.8211 - val_loss: 0.8811 - val_accuracy: 0.6333
+Epoch 9/20
+146/146 [==============================] - 5s 34ms/step - loss: 0.3462 - accuracy: 0.8520 - val_loss: 0.9374 - val_accuracy: 0.6148
+Epoch 10/20
+146/146 [==============================] - 5s 32ms/step - loss: 0.3159 - accuracy: 0.8674 - val_loss: 0.9894 - val_accuracy: 0.6118
+Epoch 11/20
+146/146 [==============================] - 5s 32ms/step - loss: 0.2923 - accuracy: 0.8792 - val_loss: 1.1118 - val_accuracy: 0.6156
+Epoch 12/20
+146/146 [==============================] - 5s 34ms/step - loss: 0.2548 - accuracy: 0.8966 - val_loss: 1.2389 - val_accuracy: 0.6208
+Epoch 13/20
+146/146 [==============================] - 5s 31ms/step - loss: 0.2217 - accuracy: 0.9104 - val_loss: 1.1945 - val_accuracy: 0.6341
+Epoch 14/20
+146/146 [==============================] - 5s 31ms/step - loss: 0.1966 - accuracy: 0.9164 - val_loss: 1.3416 - val_accuracy: 0.6367
+Epoch 15/20
+146/146 [==============================] - 5s 32ms/step - loss: 0.1637 - accuracy: 0.9322 - val_loss: 1.4218 - val_accuracy: 0.6161
+Epoch 16/20
+146/146 [==============================] - 5s 31ms/step - loss: 0.1591 - accuracy: 0.9382 - val_loss: 1.4969 - val_accuracy: 0.6225
+Epoch 17/20
+146/146 [==============================] - 5s 32ms/step - loss: 0.1623 - accuracy: 0.9344 - val_loss: 1.4675 - val_accuracy: 0.6466
+Epoch 18/20
+146/146 [==============================] - 5s 31ms/step - loss: 0.1283 - accuracy: 0.9515 - val_loss: 1.6020 - val_accuracy: 0.6410
+Epoch 19/20
+146/146 [==============================] - 5s 31ms/step - loss: 0.1174 - accuracy: 0.9562 - val_loss: 1.6733 - val_accuracy: 0.6260
+Epoch 20/20
+146/146 [==============================] - 5s 32ms/step - loss: 0.1317 - accuracy: 0.9500 - val_loss: 1.6680 - val_accuracy: 0.6475</code></pre>
+</div>
+</div>
+<div id="cell-25" class="cell" data-outputid="e207404b-4740-4adb-a572-05512c15daa2">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>plt.plot(history.history[<span class="st">'accuracy'</span>], label<span class="op">=</span><span class="st">'Training Accuracy'</span>)</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>plt.plot(history.history[<span class="st">'val_accuracy'</span>], label<span class="op">=</span><span class="st">'Validation Accuracy'</span>)</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">'Epoch'</span>)</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">'Accuracy'</span>)</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>plt.ylim([<span class="dv">0</span>, <span class="dv">1</span>])</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>plt.legend(loc<span class="op">=</span><span class="st">'lower right'</span>)</span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">'Training and Validation Accuracy'</span>)</span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/cell-11-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>Validation Accuracy: The accuracy of my model stabilized between 59% and 64% during training.</strong></p>
+<p>Comparison to Baseline: Compare to the baseline accuracy 50%, there is a 10% improvement.</p>
+<p>Overfitting Observation: I observe an overfitting in model 1. This suggests the model 1 cannot fits too closely to the training dataset.</p>
+<p><strong>3.Model 2: Model with Data Augmentation</strong></p>
+<p>In the model2, we’re incorporating layers that perform data augmentation. This technique involves adding altered versions of existing images to the training dataset. Even when an image is rotated/fliped to a certain degree, it remains itself. By including these rotated or “flipped” images in our training process, we aim to enable the model to identify and understand the “unchanging characteristics” of the input images</p>
+<p>Step 1: we first create a keras.layers.RandomFlip() layer, plotting the original image and some copies to show the application of RandomFlip()</p>
+<div id="cell-30" class="cell" data-outputid="0376c636-2f0f-4afc-f169-4b0d46a6da18">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Select an example from the training dataset</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> images, _ <span class="kw">in</span> train_ds.take(<span class="dv">1</span>):</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>    image <span class="op">=</span> images[<span class="dv">0</span>]</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">break</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a keras.layers.RandomFlip()layer</span></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>random_flip <span class="op">=</span> tf.keras.layers.RandomFlip(<span class="st">"horizontal_and_vertical"</span>)</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a><span class="co"># flip radnomly in vertical and horizontal directions</span></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a><span class="co"># flip randomly for serveral times and plot images</span></span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">2</span>))  <span class="co"># set image size</span></span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>plt.subplot(<span class="dv">1</span>, <span class="dv">5</span>, <span class="dv">1</span>)  <span class="co"># original image</span></span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>plt.imshow(image.numpy().astype(<span class="st">"uint8"</span>))</span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Original"</span>)</span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">2</span>, <span class="dv">6</span>):  <span class="co"># flip four times</span></span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a>    flipped_image <span class="op">=</span> random_flip(image, training<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a>    plt.subplot(<span class="dv">1</span>, <span class="dv">5</span>, i)</span>
+<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a>    plt.imshow(flipped_image.numpy().astype(<span class="st">"uint8"</span>))</span>
+<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a>    plt.title(<span class="ss">f"Flipped </span><span class="sc">{</span>i<span class="op">-</span><span class="dv">1</span><span class="sc">}</span><span class="ss">"</span>)  <span class="co"># plot flipped images with corresponding titles</span></span>
+<span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/cell-12-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Step 2: we then create keras.layers.RandomRotation layer. Then, we make a plot of both the original image and a few copies to which RandomRotation() has been applied.</p>
+<div id="cell-32" class="cell" data-outputid="029ed22c-7c27-467e-de29-a209a6aa4da9">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># create a keras.layers.RandomRotation, set random rotation factor as 0.24</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>random_rotation <span class="op">=</span> tf.keras.layers.RandomRotation(<span class="fl">0.24</span>)</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">2</span>))  <span class="co"># set size</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>plt.subplot(<span class="dv">1</span>, <span class="dv">5</span>, <span class="dv">1</span>)</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>plt.imshow(image.numpy().astype(<span class="st">"uint8"</span>))</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Original"</span>)</span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">2</span>, <span class="dv">6</span>):  <span class="co"># rotates randomly four times</span></span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>    rotated_image <span class="op">=</span> random_rotation(image, training<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>    plt.subplot(<span class="dv">1</span>, <span class="dv">5</span>, i)</span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>    plt.imshow(rotated_image.numpy().astype(<span class="st">"uint8"</span>))</span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>    plt.title(<span class="ss">f"Rotated </span><span class="sc">{</span>i<span class="op">-</span><span class="dv">1</span><span class="sc">}</span><span class="ss">"</span>)  <span class="co"># plot rotatated images</span></span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/cell-13-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Step 3: we then create a new keras.models.Sequential model called model2 in which “the first two layers are augmentation layers” with the usage of a RandomFlip() layer and a RandomRotation() layer.</p>
+<div id="cell-34" class="cell" data-outputid="ee74f32f-39a5-43dc-9239-0de16ea33449">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>model2 <span class="op">=</span> keras.models.Sequential([</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>    layers.Input((<span class="dv">150</span>,<span class="dv">150</span>,<span class="dv">3</span>)),</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>    layers.RandomFlip(<span class="st">"horizontal_and_vertical"</span>),</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>    layers.RandomRotation(<span class="fl">0.24</span>),</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>    layers.Conv2D(<span class="dv">32</span>, (<span class="dv">3</span>, <span class="dv">3</span>), activation<span class="op">=</span><span class="st">'relu'</span>),<span class="co">#learning a total of 32 filters</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>    layers.MaxPooling2D((<span class="dv">2</span>, <span class="dv">2</span>)),</span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>    <span class="co">#use Max Pooling to reduce the spatial dimensions of the output volume</span></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>    layers.Conv2D(<span class="dv">64</span>, (<span class="dv">3</span>, <span class="dv">3</span>), activation<span class="op">=</span><span class="st">'relu'</span>),</span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>    layers.MaxPooling2D((<span class="dv">2</span>, <span class="dv">2</span>)),</span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>    layers.Flatten(), <span class="co">#flattens the input, makes the multidimensional input 1D</span></span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>    layers.Dense(<span class="dv">64</span>, activation<span class="op">=</span><span class="st">'relu'</span>),</span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>    layers.Dropout(<span class="fl">0.3</span>), <span class="co"># randomly drop out 30% of the input</span></span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>    layers.Dense(<span class="dv">64</span>, activation<span class="op">=</span><span class="st">'softmax'</span>) <span class="co"># normalize the outputs, convert from weighted sum values into probabilities that sum to one</span></span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a>])</span>
+<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a>model2.summary()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Model: "sequential_9"
+_________________________________________________________________
+ Layer (type)                Output Shape              Param #   
+=================================================================
+ random_flip_8 (RandomFlip)  (None, 150, 150, 3)       0         
+                                                                 
+ random_rotation_8 (RandomR  (None, 150, 150, 3)       0         
+ otation)                                                        
+                                                                 
+ conv2d_18 (Conv2D)          (None, 148, 148, 32)      896       
+                                                                 
+ max_pooling2d_18 (MaxPooli  (None, 74, 74, 32)        0         
+ ng2D)                                                           
+                                                                 
+ conv2d_19 (Conv2D)          (None, 72, 72, 64)        18496     
+                                                                 
+ max_pooling2d_19 (MaxPooli  (None, 36, 36, 64)        0         
+ ng2D)                                                           
+                                                                 
+ flatten_9 (Flatten)         (None, 82944)             0         
+                                                                 
+ dense_18 (Dense)            (None, 64)                5308480   
+                                                                 
+ dropout_9 (Dropout)         (None, 64)                0         
+                                                                 
+ dense_19 (Dense)            (None, 64)                4160      
+                                                                 
+=================================================================
+Total params: 5332032 (20.34 MB)
+Trainable params: 5332032 (20.34 MB)
+Non-trainable params: 0 (0.00 Byte)
+_________________________________________________________________</code></pre>
+</div>
+</div>
+<div id="cell-35" class="cell" data-outputid="611cda5f-608e-453a-bce8-31fb92c5001c">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>model2.<span class="bu">compile</span>(optimizer<span class="op">=</span><span class="st">'adam'</span>,</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>              loss<span class="op">=</span><span class="st">'sparse_categorical_crossentropy'</span>,</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>              metrics<span class="op">=</span>[<span class="st">'accuracy'</span>])</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>history <span class="op">=</span> model2.fit(train_ds,</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>                     epochs<span class="op">=</span><span class="dv">20</span>,</span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>                     validation_data<span class="op">=</span>validation_ds)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Epoch 1/20
+146/146 [==============================] - 7s 36ms/step - loss: 0.5868 - accuracy: 0.6992 - val_loss: 0.5566 - val_accuracy: 0.7184
+Epoch 2/20
+146/146 [==============================] - 5s 34ms/step - loss: 0.5708 - accuracy: 0.7112 - val_loss: 0.5493 - val_accuracy: 0.7244
+Epoch 3/20
+146/146 [==============================] - 5s 34ms/step - loss: 0.5708 - accuracy: 0.7065 - val_loss: 0.5606 - val_accuracy: 0.7240
+Epoch 4/20
+146/146 [==============================] - 5s 34ms/step - loss: 0.5692 - accuracy: 0.7074 - val_loss: 0.5529 - val_accuracy: 0.7214
+Epoch 5/20
+146/146 [==============================] - 5s 35ms/step - loss: 0.5632 - accuracy: 0.7189 - val_loss: 0.5474 - val_accuracy: 0.7266
+Epoch 6/20
+146/146 [==============================] - 5s 34ms/step - loss: 0.5658 - accuracy: 0.7091 - val_loss: 0.5465 - val_accuracy: 0.7240
+Epoch 7/20
+146/146 [==============================] - 5s 33ms/step - loss: 0.5518 - accuracy: 0.7175 - val_loss: 0.5333 - val_accuracy: 0.7347
+Epoch 8/20
+146/146 [==============================] - 5s 34ms/step - loss: 0.5664 - accuracy: 0.7088 - val_loss: 0.5502 - val_accuracy: 0.7188
+Epoch 9/20
+146/146 [==============================] - 5s 33ms/step - loss: 0.5593 - accuracy: 0.7157 - val_loss: 0.5410 - val_accuracy: 0.7309
+Epoch 10/20
+146/146 [==============================] - 5s 34ms/step - loss: 0.5597 - accuracy: 0.7113 - val_loss: 0.5422 - val_accuracy: 0.7296
+Epoch 11/20
+146/146 [==============================] - 5s 33ms/step - loss: 0.5496 - accuracy: 0.7244 - val_loss: 0.5453 - val_accuracy: 0.7188
+Epoch 12/20
+146/146 [==============================] - 5s 33ms/step - loss: 0.5475 - accuracy: 0.7282 - val_loss: 0.5550 - val_accuracy: 0.7145
+Epoch 13/20
+146/146 [==============================] - 5s 34ms/step - loss: 0.5682 - accuracy: 0.7145 - val_loss: 0.5440 - val_accuracy: 0.7253
+Epoch 14/20
+146/146 [==============================] - 5s 33ms/step - loss: 0.5588 - accuracy: 0.7091 - val_loss: 0.5410 - val_accuracy: 0.7309
+Epoch 15/20
+146/146 [==============================] - 5s 34ms/step - loss: 0.5571 - accuracy: 0.7234 - val_loss: 0.5609 - val_accuracy: 0.7223
+Epoch 16/20
+146/146 [==============================] - 5s 33ms/step - loss: 0.5517 - accuracy: 0.7222 - val_loss: 0.5586 - val_accuracy: 0.7180
+Epoch 17/20
+146/146 [==============================] - 5s 33ms/step - loss: 0.5535 - accuracy: 0.7207 - val_loss: 0.5363 - val_accuracy: 0.7283
+Epoch 18/20
+146/146 [==============================] - 5s 34ms/step - loss: 0.5566 - accuracy: 0.7175 - val_loss: 0.5341 - val_accuracy: 0.7386
+Epoch 19/20
+146/146 [==============================] - 5s 34ms/step - loss: 0.5469 - accuracy: 0.7258 - val_loss: 0.5296 - val_accuracy: 0.7360
+Epoch 20/20
+146/146 [==============================] - 5s 34ms/step - loss: 0.5519 - accuracy: 0.7183 - val_loss: 0.5311 - val_accuracy: 0.7304</code></pre>
+</div>
+</div>
+<div id="cell-36" class="cell" data-outputid="7469e1ba-76b5-48fc-b6fd-0d8b7a8699df">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>plt.plot(history.history[<span class="st">'accuracy'</span>], label<span class="op">=</span><span class="st">'Training Accuracy'</span>)</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>plt.plot(history.history[<span class="st">'val_accuracy'</span>], label<span class="op">=</span><span class="st">'Validation Accuracy'</span>)</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">'Epoch'</span>)</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">'Accuracy'</span>)</span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>plt.ylim([<span class="dv">0</span>, <span class="dv">1</span>])</span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>plt.legend(loc<span class="op">=</span><span class="st">'lower right'</span>)</span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">'Training and Validation Accuracy'</span>)</span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/cell-16-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>Validation Accuracy: The accuracy of my model stabilized between 69% and 73% during training.</strong></p>
+<p>Comparison to model1: Compare to the model1 59%-64% accuracy, there is an around 9% improvement.</p>
+<p>Overfitting Observation: I observe little overfitting in model 2. This suggests the model2 fits coser than model1 to the training dataset. cool.</p>
+<p><strong>4.Model 3: Model with Data Preprocessing</strong></p>
+<p>By normalizing RGB values from between 0 to 255 to between 0 and 1 (or possibly between -1 and 1), many models can be trained faster. If we handle weight scaling prior to the training proess, we can spend more traning energy handling actual signal and have the weights adjust to the data scale.</p>
+<p>The following code creates a preprocessing layer called preprocessor which can be slot into our model pipeline:</p>
+<div id="cell-41" class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>i <span class="op">=</span> keras.Input(shape<span class="op">=</span>(<span class="dv">150</span>, <span class="dv">150</span>, <span class="dv">3</span>))</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="co"># The pixel values have the range of (0, 255), but many models will work better if rescaled to (-1, 1.)</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="co"># outputs: `(inputs * scale) + offset`</span></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>scale_layer <span class="op">=</span> keras.layers.Rescaling(scale<span class="op">=</span><span class="dv">1</span> <span class="op">/</span> <span class="fl">127.5</span>, offset<span class="op">=-</span><span class="dv">1</span>)</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> scale_layer(i)</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>preprocessor <span class="op">=</span> keras.Model(inputs <span class="op">=</span> i, outputs <span class="op">=</span> x)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-42" class="cell" data-outputid="b542f16b-16c3-4c2a-cdd2-18e44a8d829d" data-execution_count="146">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>model3 <span class="op">=</span> keras.models.Sequential([</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>    layers.Input((<span class="dv">150</span>,<span class="dv">150</span>,<span class="dv">3</span>)),</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>    preprocessor,</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>    layers.RandomFlip(<span class="st">"horizontal_and_vertical"</span>),</span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>    layers.RandomRotation(<span class="fl">0.24</span>),</span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>    layers.Conv2D(<span class="dv">32</span>, (<span class="dv">3</span>, <span class="dv">3</span>), activation<span class="op">=</span><span class="st">'relu'</span>),<span class="co">#learning a total of 32 filters</span></span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>    layers.MaxPooling2D((<span class="dv">2</span>, <span class="dv">2</span>)),</span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>    <span class="co">#use Max Pooling to reduce the spatial dimensions of the output volume</span></span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>    layers.Conv2D(<span class="dv">64</span>, (<span class="dv">3</span>, <span class="dv">3</span>), activation<span class="op">=</span><span class="st">'relu'</span>),</span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a>    layers.MaxPooling2D((<span class="dv">2</span>, <span class="dv">2</span>)),</span>
+<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a>    layers.Flatten(), <span class="co">#flattens the input, makes the multidimensional input 1D</span></span>
+<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a>    layers.Dropout(<span class="fl">0.3</span>), <span class="co"># randomly drop out 30% of the input</span></span>
+<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a>    layers.Dense(<span class="dv">64</span>, activation<span class="op">=</span><span class="st">'softmax'</span>) <span class="co"># normalize the outputs, convert from weighted sum values into probabilities that sum to one</span></span>
+<span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-16"><a href="#cb25-16" aria-hidden="true" tabindex="-1"></a>])</span>
+<span id="cb25-17"><a href="#cb25-17" aria-hidden="true" tabindex="-1"></a>model3.summary()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Model: "sequential_40"
+_________________________________________________________________
+ Layer (type)                Output Shape              Param #   
+=================================================================
+ model_5 (Functional)        (None, 150, 150, 3)       0         
+                                                                 
+ random_flip_36 (RandomFlip  (None, 150, 150, 3)       0         
+ )                                                               
+                                                                 
+ random_rotation_36 (Random  (None, 150, 150, 3)       0         
+ Rotation)                                                       
+                                                                 
+ conv2d_72 (Conv2D)          (None, 148, 148, 32)      896       
+                                                                 
+ max_pooling2d_66 (MaxPooli  (None, 74, 74, 32)        0         
+ ng2D)                                                           
+                                                                 
+ conv2d_73 (Conv2D)          (None, 72, 72, 64)        18496     
+                                                                 
+ max_pooling2d_67 (MaxPooli  (None, 36, 36, 64)        0         
+ ng2D)                                                           
+                                                                 
+ flatten_40 (Flatten)        (None, 82944)             0         
+                                                                 
+ dropout_34 (Dropout)        (None, 82944)             0         
+                                                                 
+ dense_74 (Dense)            (None, 64)                5308480   
+                                                                 
+=================================================================
+Total params: 5327872 (20.32 MB)
+Trainable params: 5327872 (20.32 MB)
+Non-trainable params: 0 (0.00 Byte)
+_________________________________________________________________</code></pre>
+</div>
+</div>
+<div id="cell-43" class="cell" data-outputid="fb9343fc-24cd-40f8-8adf-1fa56afa87ad">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>model3.<span class="bu">compile</span>(optimizer<span class="op">=</span><span class="st">'adam'</span>,</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>              loss<span class="op">=</span><span class="st">'sparse_categorical_crossentropy'</span>,</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>              metrics<span class="op">=</span>[<span class="st">'accuracy'</span>])</span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>history <span class="op">=</span> model3.fit(train_ds,</span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>                     epochs<span class="op">=</span><span class="dv">20</span>,</span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>                     validation_data<span class="op">=</span>validation_ds)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Epoch 1/20
+146/146 [==============================] - 116s 40ms/step - loss: 0.3754 - accuracy: 0.8347 - val_loss: 0.4780 - val_accuracy: 0.8147
+Epoch 2/20
+146/146 [==============================] - 5s 35ms/step - loss: 0.3760 - accuracy: 0.8321 - val_loss: 0.4999 - val_accuracy: 0.8091
+Epoch 3/20
+146/146 [==============================] - 5s 35ms/step - loss: 0.3707 - accuracy: 0.8374 - val_loss: 0.4653 - val_accuracy: 0.8138
+Epoch 4/20
+146/146 [==============================] - 5s 36ms/step - loss: 0.3797 - accuracy: 0.8280 - val_loss: 0.4800 - val_accuracy: 0.8108
+Epoch 5/20
+146/146 [==============================] - 5s 35ms/step - loss: 0.3780 - accuracy: 0.8320 - val_loss: 0.4570 - val_accuracy: 0.8224
+Epoch 6/20
+146/146 [==============================] - 5s 37ms/step - loss: 0.3760 - accuracy: 0.8352 - val_loss: 0.4634 - val_accuracy: 0.8160
+Epoch 7/20
+146/146 [==============================] - 5s 35ms/step - loss: 0.3765 - accuracy: 0.8345 - val_loss: 0.4479 - val_accuracy: 0.8151
+Epoch 8/20
+146/146 [==============================] - 5s 36ms/step - loss: 0.3763 - accuracy: 0.8321 - val_loss: 0.5011 - val_accuracy: 0.8091
+Epoch 9/20
+146/146 [==============================] - 5s 35ms/step - loss: 0.3742 - accuracy: 0.8321 - val_loss: 0.4702 - val_accuracy: 0.8108
+Epoch 10/20
+146/146 [==============================] - 5s 36ms/step - loss: 0.3705 - accuracy: 0.8334 - val_loss: 0.4505 - val_accuracy: 0.8169
+Epoch 11/20
+146/146 [==============================] - 5s 38ms/step - loss: 0.3709 - accuracy: 0.8354 - val_loss: 0.4823 - val_accuracy: 0.8117
+Epoch 12/20
+146/146 [==============================] - 5s 35ms/step - loss: 0.3748 - accuracy: 0.8328 - val_loss: 0.4942 - val_accuracy: 0.8065
+Epoch 13/20
+146/146 [==============================] - 5s 35ms/step - loss: 0.3720 - accuracy: 0.8325 - val_loss: 0.4717 - val_accuracy: 0.8104
+Epoch 14/20
+146/146 [==============================] - 5s 35ms/step - loss: 0.3700 - accuracy: 0.8348 - val_loss: 0.5093 - val_accuracy: 0.8113
+Epoch 15/20
+146/146 [==============================] - 5s 35ms/step - loss: 0.3726 - accuracy: 0.8347 - val_loss: 0.4981 - val_accuracy: 0.8095
+Epoch 16/20
+146/146 [==============================] - 5s 35ms/step - loss: 0.3694 - accuracy: 0.8329 - val_loss: 0.5493 - val_accuracy: 0.7962
+Epoch 17/20
+146/146 [==============================] - 5s 35ms/step - loss: 0.3650 - accuracy: 0.8408 - val_loss: 0.4625 - val_accuracy: 0.8212
+Epoch 18/20
+146/146 [==============================] - 5s 37ms/step - loss: 0.3723 - accuracy: 0.8357 - val_loss: 0.4866 - val_accuracy: 0.8083
+Epoch 19/20
+146/146 [==============================] - 5s 36ms/step - loss: 0.3674 - accuracy: 0.8414 - val_loss: 0.5071 - val_accuracy: 0.8100
+Epoch 20/20
+146/146 [==============================] - 5s 36ms/step - loss: 0.3610 - accuracy: 0.8402 - val_loss: 0.4767 - val_accuracy: 0.8061</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Exception ignored in: &lt;function _xla_gc_callback at 0x7a26d6e763b0&gt;
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/dist-packages/jax/_src/lib/__init__.py", line 97, in _xla_gc_callback
+    def _xla_gc_callback(*args):
+KeyboardInterrupt: </code></pre>
+</div>
+</div>
+<div id="cell-44" class="cell" data-outputid="f9b0a4a4-851b-4463-dd55-034f271205be">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>plt.plot(history.history[<span class="st">'accuracy'</span>], label<span class="op">=</span><span class="st">'Training Accuracy'</span>)</span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>plt.plot(history.history[<span class="st">'val_accuracy'</span>], label<span class="op">=</span><span class="st">'Validation Accuracy'</span>)</span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">'Epoch'</span>)</span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">'Accuracy'</span>)</span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a>plt.ylim([<span class="dv">0</span>, <span class="dv">1</span>])</span>
+<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a>plt.legend(loc<span class="op">=</span><span class="st">'lower right'</span>)</span>
+<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">'Training and Validation Accuracy'</span>)</span>
+<span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/cell-20-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>Validation Accuracy: The accuracy of my model stabilized between 81% and 82% during training.</strong></p>
+<p>Comparison to model2: Compare to the model2 68%-72%, there is an around 11% improvement.</p>
+<p>Overfitting Observation: I observe little overfitting in model 3.</p>
+<p>5.Model 4: Model with Transfer Learning</p>
+<p>To improve our model training, we could also access to pre-existing “base models” and incorporate it into a full model our current project, then continue training.</p>
+<p>We paste the following code to download MobileNetV3Large and configured it as a layer we could include in our model.</p>
+<div id="cell-49" class="cell" data-outputid="35562555-3b94-417c-9d96-37755d396460">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>IMG_SHAPE <span class="op">=</span> (<span class="dv">150</span>, <span class="dv">150</span>, <span class="dv">3</span>)</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>base_model <span class="op">=</span> keras.applications.MobileNetV3Large(input_shape<span class="op">=</span>IMG_SHAPE,</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>                                               include_top<span class="op">=</span><span class="va">False</span>,</span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>                                               weights<span class="op">=</span><span class="st">'imagenet'</span>)</span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>base_model.trainable <span class="op">=</span> <span class="va">False</span></span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a>i <span class="op">=</span> keras.Input(shape<span class="op">=</span>IMG_SHAPE)</span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> base_model(i, training <span class="op">=</span> <span class="va">False</span>)</span>
+<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a>base_model_layer <span class="op">=</span> keras.Model(inputs <span class="op">=</span> i, outputs <span class="op">=</span> x)</span>
+<span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a><span class="co"># preprocessing layers are included in MobileNetV3Large.</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>WARNING:tensorflow:`input_shape` is undefined or non-square, or `rows` is not 224. Weights for input shape (224, 224) will be loaded as the default.</code></pre>
+</div>
+</div>
+<div id="cell-50" class="cell" data-outputid="6d0fc8d4-be1e-43dd-954e-25cc7df06928">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>model4 <span class="op">=</span> keras.models.Sequential([</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>    layers.Input((<span class="dv">150</span>,<span class="dv">150</span>,<span class="dv">3</span>)),</span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>    base_model_layer, <span class="co"># add this layer we defined above</span></span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>    <span class="co"># we keep data augmentation layers from Part 3</span></span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>    layers.RandomFlip(<span class="st">"horizontal_and_vertical"</span>),</span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>    layers.RandomRotation(<span class="fl">0.24</span>),</span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a>    layers.Flatten(), <span class="co">#flattens the input, makes the multidimensional input 1D</span></span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a>    layers.Dropout(<span class="fl">0.3</span>), <span class="co"># I put an additionaly dropout layer; we don't need a lot additional layers</span></span>
+<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a>    layers.Dense(<span class="dv">2</span>)<span class="co"># we have Dense(2) layer at the very end to actually perform the classification</span></span>
+<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a>])</span>
+<span id="cb33-12"><a href="#cb33-12" aria-hidden="true" tabindex="-1"></a>model4.summary()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Model: "sequential_35"
+_________________________________________________________________
+ Layer (type)                Output Shape              Param #   
+=================================================================
+ model_7 (Functional)        (None, 5, 5, 960)         2996352   
+                                                                 
+ random_flip_34 (RandomFlip  (None, 5, 5, 960)         0         
+ )                                                               
+                                                                 
+ random_rotation_34 (Random  (None, 5, 5, 960)         0         
+ Rotation)                                                       
+                                                                 
+ flatten_35 (Flatten)        (None, 24000)             0         
+                                                                 
+ dropout_29 (Dropout)        (None, 24000)             0         
+                                                                 
+ dense_66 (Dense)            (None, 2)                 48002     
+                                                                 
+=================================================================
+Total params: 3044354 (11.61 MB)
+Trainable params: 48002 (187.51 KB)
+Non-trainable params: 2996352 (11.43 MB)
+_________________________________________________________________</code></pre>
+</div>
+</div>
+<p>*Model4 Summary Analysis: The base_model_layer is nuanced: There are 48002 trainable parameters in the model 4. 3044354 parameters in total.</p>
+<div id="cell-52" class="cell" data-outputid="6086c78c-05c5-49bc-fafb-41f10dc489cf">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>model4.<span class="bu">compile</span>(optimizer<span class="op">=</span><span class="st">'adam'</span>,</span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>              loss<span class="op">=</span><span class="st">'sparse_categorical_crossentropy'</span>,</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>              metrics<span class="op">=</span>[<span class="st">'accuracy'</span>])</span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>history <span class="op">=</span> model4.fit(train_ds,</span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>                     epochs<span class="op">=</span><span class="dv">20</span>,</span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a>                     validation_data<span class="op">=</span>validation_ds)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Epoch 1/20
+146/146 [==============================] - 123s 52ms/step - loss: 0.4829 - accuracy: 0.9542 - val_loss: 0.5246 - val_accuracy: 0.9480
+Epoch 2/20
+146/146 [==============================] - 6s 42ms/step - loss: 0.3985 - accuracy: 0.9549 - val_loss: 0.4381 - val_accuracy: 0.9488
+Epoch 3/20
+146/146 [==============================] - 6s 43ms/step - loss: 0.3666 - accuracy: 0.9531 - val_loss: 0.4337 - val_accuracy: 0.9441
+Epoch 4/20
+146/146 [==============================] - 7s 45ms/step - loss: 0.3244 - accuracy: 0.9344 - val_loss: 0.3844 - val_accuracy: 0.9187
+Epoch 5/20
+146/146 [==============================] - 7s 45ms/step - loss: 0.3517 - accuracy: 0.9459 - val_loss: 0.4143 - val_accuracy: 0.9514
+Epoch 6/20
+146/146 [==============================] - 7s 46ms/step - loss: 0.3307 - accuracy: 0.9553 - val_loss: 0.4066 - val_accuracy: 0.9523
+Epoch 7/20
+146/146 [==============================] - 6s 44ms/step - loss: 0.3237 - accuracy: 0.9562 - val_loss: 0.3870 - val_accuracy: 0.9518
+Epoch 8/20
+146/146 [==============================] - 7s 46ms/step - loss: 0.3117 - accuracy: 0.9558 - val_loss: 0.4322 - val_accuracy: 0.9553
+Epoch 9/20
+146/146 [==============================] - 6s 43ms/step - loss: 0.3841 - accuracy: 0.9525 - val_loss: 0.4759 - val_accuracy: 0.9458
+Epoch 10/20
+146/146 [==============================] - 6s 42ms/step - loss: 0.3867 - accuracy: 0.9524 - val_loss: 0.4956 - val_accuracy: 0.9536
+Epoch 11/20
+146/146 [==============================] - 6s 43ms/step - loss: 0.4344 - accuracy: 0.9569 - val_loss: 0.5131 - val_accuracy: 0.9514
+Epoch 12/20
+146/146 [==============================] - 6s 42ms/step - loss: 0.4486 - accuracy: 0.9560 - val_loss: 0.5210 - val_accuracy: 0.9493
+Epoch 13/20
+146/146 [==============================] - 6s 42ms/step - loss: 0.4467 - accuracy: 0.9546 - val_loss: 0.4882 - val_accuracy: 0.9471
+Epoch 14/20
+146/146 [==============================] - 7s 45ms/step - loss: 0.4211 - accuracy: 0.9472 - val_loss: 0.4840 - val_accuracy: 0.9463
+Epoch 15/20
+146/146 [==============================] - 6s 42ms/step - loss: 0.4233 - accuracy: 0.9481 - val_loss: 0.4769 - val_accuracy: 0.9471
+Epoch 16/20
+146/146 [==============================] - 6s 43ms/step - loss: 0.4114 - accuracy: 0.9470 - val_loss: 0.4656 - val_accuracy: 0.9458
+Epoch 17/20
+146/146 [==============================] - 6s 44ms/step - loss: 0.4184 - accuracy: 0.9533 - val_loss: 0.4867 - val_accuracy: 0.9501
+Epoch 18/20
+146/146 [==============================] - 7s 46ms/step - loss: 0.4150 - accuracy: 0.9545 - val_loss: 0.4799 - val_accuracy: 0.9501
+Epoch 19/20
+146/146 [==============================] - 7s 48ms/step - loss: 0.4163 - accuracy: 0.9538 - val_loss: 0.4944 - val_accuracy: 0.9531
+Epoch 20/20
+146/146 [==============================] - 7s 46ms/step - loss: 0.4306 - accuracy: 0.9569 - val_loss: 0.4911 - val_accuracy: 0.9518</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Exception ignored in: &lt;function _xla_gc_callback at 0x7a26d6e763b0&gt;
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/dist-packages/jax/_src/lib/__init__.py", line 97, in _xla_gc_callback
+    def _xla_gc_callback(*args):
+KeyboardInterrupt: </code></pre>
+</div>
+</div>
+<div id="cell-53" class="cell" data-outputid="ef8fa3d4-5be1-4529-c5af-1ce34373aeb5">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>plt.plot(history.history[<span class="st">'accuracy'</span>], label<span class="op">=</span><span class="st">'Training Accuracy'</span>)</span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a>plt.plot(history.history[<span class="st">'val_accuracy'</span>], label<span class="op">=</span><span class="st">'Validation Accuracy'</span>)</span>
+<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">'Epoch'</span>)</span>
+<span id="cb38-6"><a href="#cb38-6" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">'Accuracy'</span>)</span>
+<span id="cb38-7"><a href="#cb38-7" aria-hidden="true" tabindex="-1"></a>plt.ylim([<span class="dv">0</span>, <span class="dv">1</span>])</span>
+<span id="cb38-8"><a href="#cb38-8" aria-hidden="true" tabindex="-1"></a>plt.legend(loc<span class="op">=</span><span class="st">'lower right'</span>)</span>
+<span id="cb38-9"><a href="#cb38-9" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">'Training and Validation Accuracy'</span>)</span>
+<span id="cb38-10"><a href="#cb38-10" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/cell-24-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>Validation Accuracy: The accuracy of my model4 stabilized between 94% and 97% during training.</strong></p>
+<p>Comparison to model1: Compare to the model1’s 63% accuracy, there is an around 45% improvement.</p>
+<p>Overfitting Observation: we don’t observe much overfitting in model 4.</p>
+<p><strong>6. Score on Test Data</strong></p>
+<p>Now let’s evaluate the accuracy of our most performant model on the unseen test_ds: We choose Model 4!</p>
+<div id="cell-56" class="cell" data-outputid="547889a4-af08-46e9-d671-6ff0687a919e">
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>results <span class="op">=</span> model4.evaluate(test_ds) <span class="co"># Evaluate the model on the test dataset</span></span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f'Test accuracy is </span><span class="sc">{</span>results[<span class="dv">1</span>]<span class="sc">}</span><span class="ss">'</span>) <span class="co"># f-string allows embeded expressions inside string literals for formatting</span></span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f'Test lost is </span><span class="sc">{</span>results[<span class="dv">0</span>]<span class="sc">}</span><span class="ss">'</span>) <span class="co"># inside the braces, expressions are evaluated</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>37/37 [==============================] - 1s 38ms/step - loss: 0.4854 - accuracy: 0.9570
+Test accuracy is 0.9570077657699585
+Test lost is 0.48544150590896606</code></pre>
+</div>
+</div>
+<p>The entire f-string generates a string that includes both the static text and the evaluated expression, which is then passed to the print function to be displayed.</p>
+<p>Here is a recap about f-string if you need: <a href="https://www.geeksforgeeks.org/formatted-string-literals-f-strings-python/">f-string documentation1</a>; <a href="https://docs.python.org/3/tutorial/inputoutput.html">f-string documentation2</a></p>
+<p>In this way, we evaluate the accuracy of our most performant model4 on the unseen test_ds,</p>
+<p><strong>its latest test accuracy is approximately 95.70%.</strong></p>
+<p>At the end, just for reference, we also present accuracy of model1, model2, model3.</p>
+<div id="cell-60" class="cell" data-outputid="bdb97b34-a2ed-4b70-999a-cc6a54f08b85">
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>results <span class="op">=</span> model1.evaluate(test_ds)</span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f'Test accuracy is </span><span class="sc">{</span>results[<span class="dv">1</span>]<span class="sc">}</span><span class="ss">'</span>) <span class="co">#</span></span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f'Test lost is </span><span class="sc">{</span>results[<span class="dv">0</span>]<span class="sc">}</span><span class="ss">'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>37/37 [==============================] - 0s 12ms/step - loss: 1.7082 - accuracy: 0.6341
+Test accuracy is 0.6341358423233032
+Test lost is 1.7081671953201294</code></pre>
+</div>
+</div>
+<div id="cell-61" class="cell" data-outputid="03902252-6066-445a-b4c2-05ce4518c38d">
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>results <span class="op">=</span> model2.evaluate(test_ds)</span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f'Test accuracy is </span><span class="sc">{</span>results[<span class="dv">1</span>]<span class="sc">}</span><span class="ss">'</span>) <span class="co">#</span></span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f'Test lost is </span><span class="sc">{</span>results[<span class="dv">0</span>]<span class="sc">}</span><span class="ss">'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>37/37 [==============================] - 0s 12ms/step - loss: 0.5341 - accuracy: 0.7360
+Test accuracy is 0.7360275387763977
+Test lost is 0.5340545773506165</code></pre>
+</div>
+</div>
+<div id="cell-62" class="cell" data-outputid="7ce80228-e86f-479b-9268-c4f6d38210c1">
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a>results <span class="op">=</span> model3.evaluate(test_ds)</span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f'Test accuracy is </span><span class="sc">{</span>results[<span class="dv">1</span>]<span class="sc">}</span><span class="ss">'</span>) <span class="co">#</span></span>
+<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f'Test lost is </span><span class="sc">{</span>results[<span class="dv">0</span>]<span class="sc">}</span><span class="ss">'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>37/37 [==============================] - 1s 13ms/step - loss: 0.4324 - accuracy: 0.8332
+Test accuracy is 0.8331900238990784
+Test lost is 0.4323917031288147</code></pre>
+</div>
+</div>
+<p>Thank you for your time reading this tutorial.</p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
