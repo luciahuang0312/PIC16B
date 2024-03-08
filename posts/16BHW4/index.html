@@ -103,6 +103,35 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   }
 }</script>
 
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 <link rel="stylesheet" href="../../styles.css">
 </head>
@@ -226,8 +255,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="approach-1-simulation-with-matrix-multiplication" class="level2">
 <h2 class="anchored" data-anchor-id="approach-1-simulation-with-matrix-multiplication">Approach 1: Simulation With Matrix Multiplication</h2>
-<p>We will first uses matrix-vector multiplication to simulate the heat diffusion in the 2D space. The vector here is created by flattening the current solution</p>
-<div id="cell-9" class="cell" data-execution_count="3">
+<p>We will first uses matrix-vector multiplication to simulate the heat diffusion in the 2D space. The vector here is created by flattening the current solution: <span class="math inline">\(u_k^{i,j}\)</span></p>
+<p>Each iteration of the update is given by:</p>
+<div id="cell-10" class="cell" data-execution_count="3">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> advance_time_matvecmul(A, u, epsilon):</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Advances the simulation by one timestep, via matrix-vector multiplication</span></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co">    Args:</span></span>
@@ -242,7 +272,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    u <span class="op">=</span> u <span class="op">+</span> epsilon <span class="op">*</span> (A <span class="op">@</span> u.flatten()).reshape((N, N))</span>
 <span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> u</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div id="cell-10" class="cell" data-execution_count="4">
+<p>We actually view <span class="math inline">\(u_k^{i,j}\)</span> as the element with index N x i + j. The matrix A has the size of N<sup>2xN</sup>2, without all zeros or all zero columns</p>
+<div id="cell-12" class="cell" data-execution_count="4">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co">#The corresponding matrix A:</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>n <span class="op">=</span> N <span class="op">*</span> N</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>diagonals <span class="op">=</span> [<span class="op">-</span><span class="dv">4</span> <span class="op">*</span> np.ones(n), np.ones(n<span class="op">-</span><span class="dv">1</span>), np.ones(n<span class="op">-</span><span class="dv">1</span>), np.ones(n<span class="op">-</span>N), np.ones(n<span class="op">-</span>N)]</span>
@@ -250,7 +281,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>diagonals[<span class="dv">2</span>][(N<span class="op">-</span><span class="dv">1</span>)::N] <span class="op">=</span> <span class="dv">0</span></span>
 <span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>A <span class="op">=</span> np.diag(diagonals[<span class="dv">0</span>]) <span class="op">+</span> np.diag(diagonals[<span class="dv">1</span>], <span class="dv">1</span>) <span class="op">+</span> np.diag(diagonals[<span class="dv">2</span>], <span class="op">-</span><span class="dv">1</span>) <span class="op">+</span> np.diag(diagonals[<span class="dv">3</span>], N) <span class="op">+</span> np.diag(diagonals[<span class="dv">4</span>], <span class="op">-</span>N)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div id="cell-11" class="cell" data-execution_count="5">
+<p>We will define a function get_A(N), which takes the value “N” as the argument and returns the corresponding matrix A in heat_equation.py (put the function you defined in a py. file).</p>
+<div id="cell-14" class="cell" data-execution_count="5">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_A(N):</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""The function get_A(N) takes the value N as the argument and returns the output matrix A with matrix multiplication</span></span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
@@ -261,18 +293,22 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    A <span class="op">=</span> np.diag(diagonals[<span class="dv">0</span>]) <span class="op">+</span> np.diag(diagonals[<span class="dv">1</span>], <span class="dv">1</span>) <span class="op">+</span> np.diag(diagonals[<span class="dv">2</span>], <span class="op">-</span><span class="dv">1</span>) <span class="op">+</span> np.diag(diagonals[<span class="dv">3</span>], N) <span class="op">+</span> np.diag(diagonals[<span class="dv">4</span>], <span class="op">-</span>N)</span>
 <span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> A</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div id="cell-12" class="cell" data-outputid="958df154-3d6d-4ef8-f429-032385b142bc" data-execution_count="6">
+<p>Then with the get_A() and advance_time_matvecmul(), we run the code for 2700 iterations. We introduce time module previously in import libraries to help us obvserve how long does it takes.</p>
+<div id="cell-16" class="cell" data-execution_count="8">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>u <span class="op">=</span> [u0]</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>A <span class="op">=</span> get_A(N) <span class="co"># Generate the Matrix A</span></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>start_time <span class="op">=</span> time.time()</span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span> (<span class="dv">1</span>,<span class="dv">2701</span>): <span class="co"># Loop for 2700 iterations</span></span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    u.append(advance_time_matvecmul(A, u[<span class="op">-</span><span class="dv">1</span>], epsilon))</span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(time.time() <span class="op">-</span> start_time)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>A <span class="op">=</span> get_A(N)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>A <span class="op">=</span> get_A(N) <span class="co"># Generate the Matrix A</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>start_time <span class="op">=</span> time.time()</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span> (<span class="dv">1</span>,<span class="dv">2701</span>): <span class="co"># Loop for 2700 iterations</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    u.append(advance_time_matvecmul(A, u[<span class="op">-</span><span class="dv">1</span>], epsilon))</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(time.time() <span class="op">-</span> start_time)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>219.51434016227722</code></pre>
+<pre><code>73.26655387878418</code></pre>
 </div>
 </div>
-<div id="cell-13" class="cell" data-outputid="30491739-62dc-4306-815d-3ed90a498cb4" data-execution_count="7">
+<p>We observe this method 1 runs for 73 seconds. One thing for sure: this method runs excruciatingly slow.</p>
+<p>We still need to visualize the diffusion of heat every 300 iterations. We present them in 3 by 3 grid of 2D heat maps</p>
+<div id="cell-19" class="cell" data-outputid="30491739-62dc-4306-815d-3ed90a498cb4" data-execution_count="7">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>fig, axs <span class="op">=</span> plt.subplots(nrows<span class="op">=</span><span class="dv">3</span>, ncols<span class="op">=</span><span class="dv">3</span>, figsize<span class="op">=</span>(<span class="dv">12</span>, <span class="dv">8</span>))</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>axs <span class="op">=</span> axs.flatten()</span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>subplot_index <span class="op">=</span> <span class="dv">0</span></span>
@@ -301,7 +337,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
-<div id="cell-14" class="cell" data-execution_count="8">
+</section>
+<section id="approach-2-sparse-matrix-in-jax" class="level2">
+<h2 class="anchored" data-anchor-id="approach-2-sparse-matrix-in-jax">Approach 2: Sparse Matrix in JAX</h2>
+<p>With a sparsed matrix, matrix multiplication will be much faster since the use of batched coordinate (BCOO) only take O(N^2) time for each update.</p>
+<p>We will define a function get_sparse_A(N), which returns A_sp_matrix, a matrix A in a sparse format, given N in heat_equation.py. At the same time, we repeate Part 1 using get_A_sparse() and the jit-ed version of advance_time_matvecmul.</p>
+<div id="cell-23" class="cell" data-execution_count="8">
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Converting initial condition to JAX array</span></span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>u0 <span class="op">=</span> jnp.zeros((N, N)) <span class="co"># Initialize the grid to zero</span></span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>u0 <span class="op">=</span> u0.at[<span class="bu">int</span>(N<span class="op">/</span><span class="dv">2</span>), <span class="bu">int</span>(N<span class="op">/</span><span class="dv">2</span>)].<span class="bu">set</span>(<span class="fl">1.0</span>) <span class="co"># Set the middle center element to 1.0</span></span>
@@ -338,7 +379,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb9-34"><a href="#cb9-34" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
 <span id="cb9-35"><a href="#cb9-35" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> u</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div id="cell-15" class="cell" data-outputid="63401cf9-9187-4284-a57a-3addeb31238f" data-execution_count="10">
+<p>Then with the get_sparse_A() and jit-ed version of advance_time_matvecmul(), we run the code for 2700 iterations. Let’s observe how long does it takes.</p>
+<div id="cell-25" class="cell" data-outputid="63401cf9-9187-4284-a57a-3addeb31238f" data-execution_count="10">
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>u <span class="op">=</span> [u0]</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>A <span class="op">=</span> get_sparse_A(N)</span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>start_time <span class="op">=</span> time.time()</span>
@@ -349,7 +391,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <pre><code>0.8678162097930908</code></pre>
 </div>
 </div>
-<div id="cell-16" class="cell" data-outputid="28a41cf9-5085-42cc-dbe5-ae7bbf05532b" data-execution_count="11">
+<p>We observe this method 2 runs for 0.867 seconds! Since method 1 runs for 73 seconds, method 2 is 84 times faster than method 1.</p>
+<p>Now let’s visualize the diffusion of heat every 300 iterations. We present them in 3 by 3 grid of 2D heat maps</p>
+<div id="cell-28" class="cell" data-outputid="28a41cf9-5085-42cc-dbe5-ae7bbf05532b" data-execution_count="11">
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>fig, axs <span class="op">=</span> plt.subplots(nrows<span class="op">=</span><span class="dv">3</span>, ncols<span class="op">=</span><span class="dv">3</span>, figsize<span class="op">=</span>(<span class="dv">12</span>, <span class="dv">8</span>))</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>axs <span class="op">=</span> axs.flatten()</span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>subplot_index <span class="op">=</span> <span class="dv">0</span></span>
@@ -378,7 +422,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
-<div id="cell-17" class="cell" data-execution_count="14">
+</section>
+<section id="approach-3-direct-operation-with-numpy" class="level2">
+<h2 class="anchored" data-anchor-id="approach-3-direct-operation-with-numpy">Approach 3: Direct Operation with numpy</h2>
+<p>Matrix-vector multiplication approach is not absolutely necessary in terms of computation. With vectorized array operations like np. roll(), the operations could be simpler.</p>
+<p>We can then write a function advance_time_numpy(u, epsilon) that advances the solution by one timestep. We could pay zeroes to the input array to form an (N+2)x(N=2) array internally, but the argument and the returned solution should still be N x N.</p>
+<div id="cell-32" class="cell" data-execution_count="14">
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> advance_time_numpy(u, epsilon):</span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="co">    The function computes the Laplacian of the input grid 'u' via vectorized opertaions,</span></span>
@@ -395,7 +444,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>    u_next <span class="op">=</span> u <span class="op">+</span> epsilon <span class="op">*</span> laplacian_u</span>
 <span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> u_next</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div id="cell-18" class="cell" data-outputid="5d279394-6241-45cc-f05a-e04a1b9c9f70" data-execution_count="15">
+<p>Then with the advance_time_numpy(u,epsilon), we run the code for 2700 iterations. Let’s obvserve how long does it takes.</p>
+<div id="cell-34" class="cell" data-outputid="5d279394-6241-45cc-f05a-e04a1b9c9f70" data-execution_count="15">
 <div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>u <span class="op">=</span> u0</span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>start_time <span class="op">=</span> time.time()</span>
 <span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> t <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, <span class="dv">2701</span>):</span>
@@ -405,7 +455,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <pre><code>0.21011614799499512</code></pre>
 </div>
 </div>
-<div id="cell-19" class="cell" data-outputid="43a06116-52c7-43ef-e406-49d20f6e4be8" data-execution_count="16">
+<p>It only takes 0.21 s to run the method 3, method 1 takes 73s, it’s 347x faster than method 1</p>
+<p>Now let’s visualize the diffusion of heat every 300 iterations. We present them in 3 by 3 grid of 2D heat maps</p>
+<div id="cell-37" class="cell" data-outputid="43a06116-52c7-43ef-e406-49d20f6e4be8" data-execution_count="16">
 <div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>u <span class="op">=</span> u0</span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>fig, axs <span class="op">=</span> plt.subplots(<span class="dv">3</span>, <span class="dv">3</span>, figsize<span class="op">=</span>(<span class="dv">9</span>, <span class="dv">9</span>))</span>
 <span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>axs <span class="op">=</span> axs.flatten()</span>
@@ -439,7 +491,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
-<div id="cell-20" class="cell" data-execution_count="17">
+</section>
+<section id="approach-4-with-jax" class="level2">
+<h2 class="anchored" data-anchor-id="approach-4-with-jax">Approach 4: With Jax</h2>
+<p>Now, we will use jax to do the similar using just-in-time compilation.</p>
+<p>We will now define a function advance_time_jax(u, epsilon) but without using (sparse) matrix multiplication routines. It will be simple if we use the function advance_time_numpy() as the starting point. Keep in mind that jax does not support index assignment.”</p>
+<div id="cell-41" class="cell" data-execution_count="17">
 <div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> jax.numpy <span class="im">as</span> jnp</span>
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> jax <span class="im">import</span> jit</span>
 <span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -463,7 +520,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb17-21"><a href="#cb17-21" aria-hidden="true" tabindex="-1"></a>    u_next <span class="op">=</span> u <span class="op">+</span> epsilon <span class="op">*</span> laplacian_u</span>
 <span id="cb17-22"><a href="#cb17-22" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> u_next</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div id="cell-21" class="cell" data-outputid="9ee6f814-e309-4784-cf5b-d969f6ce212e" data-execution_count="19">
+<p>Then with the advance_time_jax(u,epsilon), we run the code for 2700 iterations. Let’s obvserve how long does it takes.</p>
+<div id="cell-43" class="cell" data-outputid="9ee6f814-e309-4784-cf5b-d969f6ce212e" data-execution_count="19">
 <div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>u <span class="op">=</span> u0</span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>start_time <span class="op">=</span> time.time()</span>
 <span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, <span class="dv">2701</span>):</span>
@@ -473,7 +531,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <pre><code>0.10694193840026855</code></pre>
 </div>
 </div>
-<div id="cell-22" class="cell" data-outputid="557de27f-8ce1-4767-f3cb-9ce77820e3c8" data-execution_count="20">
+<p>It only takes 0.10 s to run the method 4. We know method 3 takes 0.21s, method 4 is about 2x faster than method 3.</p>
+<p>Now let’s visualize the diffusion of heat every 300 iterations. We present them in 3 by 3 grid of 2D heat maps</p>
+<div id="cell-46" class="cell" data-outputid="557de27f-8ce1-4767-f3cb-9ce77820e3c8" data-execution_count="20">
 <div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>u <span class="op">=</span> u0</span>
 <span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>fig, axs <span class="op">=</span> plt.subplots(<span class="dv">3</span>, <span class="dv">3</span>, figsize<span class="op">=</span>(<span class="dv">9</span>, <span class="dv">9</span>))</span>
 <span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>axs <span class="op">=</span> axs.flatten()</span>
@@ -513,6 +573,37 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
+</section>
+<section id="models-comparison" class="level2">
+<h2 class="anchored" data-anchor-id="models-comparison">4 Models Comparison:</h2>
+<p>Now let’s compare the performances of four models. Let’s summarize which one is fastest, and which one is easier for us to write.</p>
+<table class="table">
+<thead>
+<tr class="header">
+<th>Model</th>
+<th>Time</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Model 1</td>
+<td>73s</td>
+</tr>
+<tr class="even">
+<td>Model 2</td>
+<td>0.86s</td>
+</tr>
+<tr class="odd">
+<td>Model 3</td>
+<td>0.21s</td>
+</tr>
+<tr class="even">
+<td>Model 4</td>
+<td>0.10s</td>
+</tr>
+</tbody>
+</table>
+<p>Model 4 is obviously the fastest. With the formula and code already given, Model 1 is the easiet to write.</p>
 
 
 </section>
