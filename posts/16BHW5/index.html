@@ -6,8 +6,10 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="author" content="Manshu Huang">
+<meta name="dcterms.date" content="2024-03-04">
 
-<title>PIC16B - Tutorial 5: Image Classification in Keras through Tensorflow Datasets</title>
+<title>PIC16B - PIC16B HW5</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -147,14 +149,30 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <header id="title-block-header" class="quarto-title-block default page-columns page-full">
   <div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
-      <h1 class="title">Tutorial 5: Image Classification in Keras through Tensorflow Datasets</h1>
-                      </div>
+      <h1 class="title">PIC16B HW5</h1>
+                                <div class="quarto-categories">
+                <div class="quarto-category">week 8</div>
+                <div class="quarto-category">hw5</div>
+              </div>
+                  </div>
   </div>
     
   
   <div class="quarto-title-meta">
 
+      <div>
+      <div class="quarto-title-meta-heading">Author</div>
+      <div class="quarto-title-meta-contents">
+               <p>Manshu Huang </p>
+            </div>
+    </div>
       
+      <div>
+      <div class="quarto-title-meta-heading">Published</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">March 4, 2024</p>
+      </div>
+    </div>
     
       
     </div>
@@ -171,8 +189,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 
-<section id="tutorial-5-image-classification-in-keras-through-tensorflow-datasets" class="level3">
-<h3 class="anchored" data-anchor-id="tutorial-5-image-classification-in-keras-through-tensorflow-datasets">Tutorial 5: Image Classification in Keras through Tensorflow Datasets</h3>
+<section id="tutorial-5-image-classification-in-keras-through-tensorflow-datasets" class="level1">
+<h1>Tutorial 5: Image Classification in Keras through Tensorflow Datasets</h1>
 <p>This blog tutorial will present different approaches to conduct image classification in Keras with data fed through Tensorflow Datasets.</p>
 </section>
 <section id="background-knowledge" class="level1">
@@ -186,7 +204,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h1>Instructions:</h1>
 <p><strong>1.Load Packages and Obtain Data</strong></p>
 <p>We firstly include a block that includes all import statements with a brief introduction of their implications:</p>
-<div id="cell-6" class="cell">
+<div id="cell-7" class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os <span class="co"># 'os' allows interaction wth the operation system</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>os.environ[<span class="st">"KERAS_BACKEND"</span>] <span class="op">=</span> <span class="st">"torch"</span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -201,7 +219,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> keras <span class="im">import</span> layers <span class="co"># 'layers' is building blocks of networks in Keras, contains functions like 'Dense', 'Conv2D', etc.</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>By utilizing Kaggle, we gain access to a dataset featuring labeled images of cats and dogs. By executing the code below, we successfully establish datasets designated for training, validation, and testing purposes.</p>
-<div id="cell-8" class="cell" data-outputid="435bd574-bde5-4eee-8275-9b6a17fb8380">
+<div id="cell-9" class="cell" data-outputid="435bd574-bde5-4eee-8275-9b6a17fb8380">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>train_ds, validation_ds, test_ds <span class="op">=</span> tfds.load(</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"cats_vs_dogs"</span>,</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 40% for training, 10% for validation, and 10% for test (the rest unused)</span></span>
@@ -219,7 +237,7 @@ Number of test samples: 2326</code></pre>
 </div>
 </div>
 <p>We use the following code to resize all different sized images in datasets to a fixed size of 150x150</p>
-<div id="cell-10" class="cell">
+<div id="cell-11" class="cell">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>resize_fn <span class="op">=</span> keras.layers.Resizing(<span class="dv">150</span>, <span class="dv">150</span>)</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>train_ds <span class="op">=</span> train_ds.<span class="bu">map</span>(<span class="kw">lambda</span> x, y: (resize_fn(x), y))</span>
@@ -227,7 +245,7 @@ Number of test samples: 2326</code></pre>
 <span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>test_ds <span class="op">=</span> test_ds.<span class="bu">map</span>(<span class="kw">lambda</span> x, y: (resize_fn(x), y))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>The next block uses batch_size to determine “how many data points are gathered from the directory”:</p>
-<div id="cell-12" class="cell">
+<div id="cell-13" class="cell">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> tensorflow <span class="im">import</span> data <span class="im">as</span> tf_data</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>batch_size <span class="op">=</span> <span class="dv">64</span></span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -236,7 +254,7 @@ Number of test samples: 2326</code></pre>
 <span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>test_ds <span class="op">=</span> test_ds.batch(batch_size).prefetch(tf_data.AUTOTUNE).cache()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>We now write a function to create two-row visualization with one row of cats and one row of dogs</p>
-<div id="cell-14" class="cell" data-outputid="0965b583-f5b2-4446-9751-e453cdb71da1">
+<div id="cell-15" class="cell" data-outputid="0965b583-f5b2-4446-9751-e453cdb71da1">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>class_names <span class="op">=</span> [<span class="st">'cat'</span>, <span class="st">'dog'</span>]</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> visualize(ds):</span>
@@ -273,7 +291,7 @@ Number of test samples: 2326</code></pre>
 <p>The following code will create an iterator called labels_iterator:</p>
 <pre><code>labels_iterator= train_ds.unbatch().map(lambda image, label: label).as_numpy_iterator()</code></pre>
 <p>We will compute the number of image in the training set with label 0 (“cat”) and label 1 (“dog”). In the baseline machine learning model, we will examine how accurate it works in our case. Baseline model will be our benchmark for improvement.</p>
-<div id="cell-16" class="cell" data-outputid="30f1130c-cc98-4c2c-c6ec-f7a87bc94de1">
+<div id="cell-17" class="cell" data-outputid="30f1130c-cc98-4c2c-c6ec-f7a87bc94de1">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>labels_iterator <span class="op">=</span> train_ds.unbatch().<span class="bu">map</span>(<span class="kw">lambda</span> image, label: label).as_numpy_iterator()</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Initialize counters for each label</span></span>
@@ -294,7 +312,7 @@ Number of 'dog' images (label 1): 4668</code></pre>
 </div>
 </div>
 <p>4668 &gt; 4637, the baseline accuracy is calculated by “the most frequent label”/ “total label”; In this case, it is calculated by dog/(dog+cat)</p>
-<div id="cell-18" class="cell" data-outputid="90a0203c-7b9a-4979-e137-39883321a99d">
+<div id="cell-19" class="cell" data-outputid="90a0203c-7b9a-4979-e137-39883321a99d">
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"The baseline accuracy is"</span>, label_1_dog<span class="op">/</span>(label_1_dog<span class="op">+</span>label_0_cat))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>The baseline accuracy is 0.5016657710908113</code></pre>
@@ -303,7 +321,7 @@ Number of 'dog' images (label 1): 4668</code></pre>
 <p><strong>2. Model 1</strong></p>
 <p>“The simplest way to make a model is by using the <code>keras.models.Sequential</code> API, which allows you to construct a model by simply passing a list of layers.”</p>
 <p>Let’s start to construct model 1 (a keras.Sequential model) using at least two Conv2D layers, at least two MaxPooling2D layers, at least one Flatten layer, at least one Dense layer, and at least one Dropout layer.</p>
-<div id="cell-22" class="cell" data-outputid="9faa40e4-2765-404a-bdeb-f95e8db6fcbe" data-execution_count="145">
+<div id="cell-23" class="cell" data-outputid="9faa40e4-2765-404a-bdeb-f95e8db6fcbe" data-execution_count="145">
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> tensorflow <span class="im">as</span> tf</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> tensorflow.keras <span class="im">import</span> layers, models</span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="co">"""</span></span>
@@ -361,7 +379,7 @@ _________________________________________________________________</code></pre>
 </div>
 </div>
 <p>We first complile the model and then train the model</p>
-<div id="cell-24" class="cell" data-outputid="aa5ff000-8c00-44fa-c992-dbe3424b280c">
+<div id="cell-25" class="cell" data-outputid="aa5ff000-8c00-44fa-c992-dbe3424b280c">
 <div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>model1.<span class="bu">compile</span>(optimizer<span class="op">=</span><span class="st">'adam'</span>,</span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>              loss<span class="op">=</span><span class="st">'sparse_categorical_crossentropy'</span>,</span>
 <span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>              metrics<span class="op">=</span>[<span class="st">'accuracy'</span>])</span>
@@ -409,7 +427,7 @@ Epoch 20/20
 146/146 [==============================] - 5s 32ms/step - loss: 0.1317 - accuracy: 0.9500 - val_loss: 1.6680 - val_accuracy: 0.6475</code></pre>
 </div>
 </div>
-<div id="cell-25" class="cell" data-outputid="e207404b-4740-4adb-a572-05512c15daa2">
+<div id="cell-26" class="cell" data-outputid="e207404b-4740-4adb-a572-05512c15daa2">
 <div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>plt.plot(history.history[<span class="st">'accuracy'</span>], label<span class="op">=</span><span class="st">'Training Accuracy'</span>)</span>
@@ -434,7 +452,7 @@ Epoch 20/20
 <p><strong>3.Model 2: Model with Data Augmentation</strong></p>
 <p>In the model2, we’re incorporating layers that perform data augmentation. This technique involves adding altered versions of existing images to the training dataset. Even when an image is rotated/fliped to a certain degree, it remains itself. By including these rotated or “flipped” images in our training process, we aim to enable the model to identify and understand the “unchanging characteristics” of the input images</p>
 <p>Step 1: we first create a keras.layers.RandomFlip() layer, plotting the original image and some copies to show the application of RandomFlip()</p>
-<div id="cell-30" class="cell" data-outputid="0376c636-2f0f-4afc-f169-4b0d46a6da18">
+<div id="cell-31" class="cell" data-outputid="0376c636-2f0f-4afc-f169-4b0d46a6da18">
 <div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Select an example from the training dataset</span></span>
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> images, _ <span class="kw">in</span> train_ds.take(<span class="dv">1</span>):</span>
 <span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>    image <span class="op">=</span> images[<span class="dv">0</span>]</span>
@@ -464,7 +482,7 @@ Epoch 20/20
 </div>
 </div>
 <p>Step 2: we then create keras.layers.RandomRotation layer. Then, we make a plot of both the original image and a few copies to which RandomRotation() has been applied.</p>
-<div id="cell-32" class="cell" data-outputid="029ed22c-7c27-467e-de29-a209a6aa4da9">
+<div id="cell-33" class="cell" data-outputid="029ed22c-7c27-467e-de29-a209a6aa4da9">
 <div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># create a keras.layers.RandomRotation, set random rotation factor as 0.24</span></span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>random_rotation <span class="op">=</span> tf.keras.layers.RandomRotation(<span class="fl">0.24</span>)</span>
 <span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -487,7 +505,7 @@ Epoch 20/20
 </div>
 </div>
 <p>Step 3: we then create a new keras.models.Sequential model called model2 in which “the first two layers are augmentation layers” with the usage of a RandomFlip() layer and a RandomRotation() layer.</p>
-<div id="cell-34" class="cell" data-outputid="ee74f32f-39a5-43dc-9239-0de16ea33449">
+<div id="cell-35" class="cell" data-outputid="ee74f32f-39a5-43dc-9239-0de16ea33449">
 <div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>model2 <span class="op">=</span> keras.models.Sequential([</span>
 <span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>    layers.Input((<span class="dv">150</span>,<span class="dv">150</span>,<span class="dv">3</span>)),</span>
 <span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>    layers.RandomFlip(<span class="st">"horizontal_and_vertical"</span>),</span>
@@ -539,7 +557,7 @@ Non-trainable params: 0 (0.00 Byte)
 _________________________________________________________________</code></pre>
 </div>
 </div>
-<div id="cell-35" class="cell" data-outputid="611cda5f-608e-453a-bce8-31fb92c5001c">
+<div id="cell-36" class="cell" data-outputid="611cda5f-608e-453a-bce8-31fb92c5001c">
 <div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>model2.<span class="bu">compile</span>(optimizer<span class="op">=</span><span class="st">'adam'</span>,</span>
 <span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>              loss<span class="op">=</span><span class="st">'sparse_categorical_crossentropy'</span>,</span>
 <span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>              metrics<span class="op">=</span>[<span class="st">'accuracy'</span>])</span>
@@ -590,7 +608,7 @@ Epoch 20/20
 146/146 [==============================] - 5s 34ms/step - loss: 0.5519 - accuracy: 0.7183 - val_loss: 0.5311 - val_accuracy: 0.7304</code></pre>
 </div>
 </div>
-<div id="cell-36" class="cell" data-outputid="7469e1ba-76b5-48fc-b6fd-0d8b7a8699df">
+<div id="cell-37" class="cell" data-outputid="7469e1ba-76b5-48fc-b6fd-0d8b7a8699df">
 <div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>plt.plot(history.history[<span class="st">'accuracy'</span>], label<span class="op">=</span><span class="st">'Training Accuracy'</span>)</span>
@@ -615,7 +633,7 @@ Epoch 20/20
 <p><strong>4.Model 3: Model with Data Preprocessing</strong></p>
 <p>By normalizing RGB values from between 0 to 255 to between 0 and 1 (or possibly between -1 and 1), many models can be trained faster. If we handle weight scaling prior to the training proess, we can spend more traning energy handling actual signal and have the weights adjust to the data scale.</p>
 <p>The following code creates a preprocessing layer called preprocessor which can be slot into our model pipeline:</p>
-<div id="cell-41" class="cell">
+<div id="cell-42" class="cell">
 <div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>i <span class="op">=</span> keras.Input(shape<span class="op">=</span>(<span class="dv">150</span>, <span class="dv">150</span>, <span class="dv">3</span>))</span>
 <span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="co"># The pixel values have the range of (0, 255), but many models will work better if rescaled to (-1, 1.)</span></span>
 <span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="co"># outputs: `(inputs * scale) + offset`</span></span>
@@ -623,7 +641,7 @@ Epoch 20/20
 <span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> scale_layer(i)</span>
 <span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>preprocessor <span class="op">=</span> keras.Model(inputs <span class="op">=</span> i, outputs <span class="op">=</span> x)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div id="cell-42" class="cell" data-outputid="b542f16b-16c3-4c2a-cdd2-18e44a8d829d" data-execution_count="146">
+<div id="cell-43" class="cell" data-outputid="b542f16b-16c3-4c2a-cdd2-18e44a8d829d" data-execution_count="146">
 <div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>model3 <span class="op">=</span> keras.models.Sequential([</span>
 <span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>    layers.Input((<span class="dv">150</span>,<span class="dv">150</span>,<span class="dv">3</span>)),</span>
 <span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>    preprocessor,</span>
@@ -677,7 +695,7 @@ Non-trainable params: 0 (0.00 Byte)
 _________________________________________________________________</code></pre>
 </div>
 </div>
-<div id="cell-43" class="cell" data-outputid="fb9343fc-24cd-40f8-8adf-1fa56afa87ad">
+<div id="cell-44" class="cell" data-outputid="fb9343fc-24cd-40f8-8adf-1fa56afa87ad">
 <div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>model3.<span class="bu">compile</span>(optimizer<span class="op">=</span><span class="st">'adam'</span>,</span>
 <span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>              loss<span class="op">=</span><span class="st">'sparse_categorical_crossentropy'</span>,</span>
 <span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>              metrics<span class="op">=</span>[<span class="st">'accuracy'</span>])</span>
@@ -735,7 +753,7 @@ Traceback (most recent call last):
 KeyboardInterrupt: </code></pre>
 </div>
 </div>
-<div id="cell-44" class="cell" data-outputid="f9b0a4a4-851b-4463-dd55-034f271205be">
+<div id="cell-45" class="cell" data-outputid="f9b0a4a4-851b-4463-dd55-034f271205be">
 <div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>plt.plot(history.history[<span class="st">'accuracy'</span>], label<span class="op">=</span><span class="st">'Training Accuracy'</span>)</span>
@@ -760,7 +778,7 @@ KeyboardInterrupt: </code></pre>
 <p>5.Model 4: Model with Transfer Learning</p>
 <p>To improve our model training, we could also access to pre-existing “base models” and incorporate it into a full model our current project, then continue training.</p>
 <p>We paste the following code to download MobileNetV3Large and configured it as a layer we could include in our model.</p>
-<div id="cell-49" class="cell" data-outputid="35562555-3b94-417c-9d96-37755d396460">
+<div id="cell-50" class="cell" data-outputid="35562555-3b94-417c-9d96-37755d396460">
 <div class="sourceCode cell-code" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>IMG_SHAPE <span class="op">=</span> (<span class="dv">150</span>, <span class="dv">150</span>, <span class="dv">3</span>)</span>
 <span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>base_model <span class="op">=</span> keras.applications.MobileNetV3Large(input_shape<span class="op">=</span>IMG_SHAPE,</span>
 <span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>                                               include_top<span class="op">=</span><span class="va">False</span>,</span>
@@ -775,7 +793,7 @@ KeyboardInterrupt: </code></pre>
 <pre><code>WARNING:tensorflow:`input_shape` is undefined or non-square, or `rows` is not 224. Weights for input shape (224, 224) will be loaded as the default.</code></pre>
 </div>
 </div>
-<div id="cell-50" class="cell" data-outputid="6d0fc8d4-be1e-43dd-954e-25cc7df06928">
+<div id="cell-51" class="cell" data-outputid="6d0fc8d4-be1e-43dd-954e-25cc7df06928">
 <div class="sourceCode cell-code" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>model4 <span class="op">=</span> keras.models.Sequential([</span>
 <span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>    layers.Input((<span class="dv">150</span>,<span class="dv">150</span>,<span class="dv">3</span>)),</span>
 <span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>    base_model_layer, <span class="co"># add this layer we defined above</span></span>
@@ -815,7 +833,7 @@ _________________________________________________________________</code></pre>
 </div>
 </div>
 <p>*Model4 Summary Analysis: The base_model_layer is nuanced: There are 48002 trainable parameters in the model 4. 3044354 parameters in total.</p>
-<div id="cell-52" class="cell" data-outputid="6086c78c-05c5-49bc-fafb-41f10dc489cf">
+<div id="cell-53" class="cell" data-outputid="6086c78c-05c5-49bc-fafb-41f10dc489cf">
 <div class="sourceCode cell-code" id="cb35"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>model4.<span class="bu">compile</span>(optimizer<span class="op">=</span><span class="st">'adam'</span>,</span>
 <span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>              loss<span class="op">=</span><span class="st">'sparse_categorical_crossentropy'</span>,</span>
 <span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>              metrics<span class="op">=</span>[<span class="st">'accuracy'</span>])</span>
@@ -873,7 +891,7 @@ Traceback (most recent call last):
 KeyboardInterrupt: </code></pre>
 </div>
 </div>
-<div id="cell-53" class="cell" data-outputid="ef8fa3d4-5be1-4529-c5af-1ce34373aeb5">
+<div id="cell-54" class="cell" data-outputid="ef8fa3d4-5be1-4529-c5af-1ce34373aeb5">
 <div class="sourceCode cell-code" id="cb38"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>plt.plot(history.history[<span class="st">'accuracy'</span>], label<span class="op">=</span><span class="st">'Training Accuracy'</span>)</span>
@@ -897,7 +915,7 @@ KeyboardInterrupt: </code></pre>
 <p>Overfitting Observation: we don’t observe much overfitting in model 4.</p>
 <p><strong>6. Score on Test Data</strong></p>
 <p>Now let’s evaluate the accuracy of our most performant model on the unseen test_ds: We choose Model 4!</p>
-<div id="cell-56" class="cell" data-outputid="547889a4-af08-46e9-d671-6ff0687a919e">
+<div id="cell-57" class="cell" data-outputid="547889a4-af08-46e9-d671-6ff0687a919e">
 <div class="sourceCode cell-code" id="cb39"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>results <span class="op">=</span> model4.evaluate(test_ds) <span class="co"># Evaluate the model on the test dataset</span></span>
 <span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f'Test accuracy is </span><span class="sc">{</span>results[<span class="dv">1</span>]<span class="sc">}</span><span class="ss">'</span>) <span class="co"># f-string allows embeded expressions inside string literals for formatting</span></span>
 <span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f'Test lost is </span><span class="sc">{</span>results[<span class="dv">0</span>]<span class="sc">}</span><span class="ss">'</span>) <span class="co"># inside the braces, expressions are evaluated</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -912,7 +930,7 @@ Test lost is 0.48544150590896606</code></pre>
 <p>In this way, we evaluate the accuracy of our most performant model4 on the unseen test_ds,</p>
 <p><strong>its latest test accuracy is approximately 95.70%.</strong></p>
 <p>At the end, just for reference, we also present accuracy of model1, model2, model3.</p>
-<div id="cell-60" class="cell" data-outputid="bdb97b34-a2ed-4b70-999a-cc6a54f08b85">
+<div id="cell-61" class="cell" data-outputid="bdb97b34-a2ed-4b70-999a-cc6a54f08b85">
 <div class="sourceCode cell-code" id="cb41"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>results <span class="op">=</span> model1.evaluate(test_ds)</span>
 <span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f'Test accuracy is </span><span class="sc">{</span>results[<span class="dv">1</span>]<span class="sc">}</span><span class="ss">'</span>) <span class="co">#</span></span>
 <span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f'Test lost is </span><span class="sc">{</span>results[<span class="dv">0</span>]<span class="sc">}</span><span class="ss">'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -922,7 +940,7 @@ Test accuracy is 0.6341358423233032
 Test lost is 1.7081671953201294</code></pre>
 </div>
 </div>
-<div id="cell-61" class="cell" data-outputid="03902252-6066-445a-b4c2-05ce4518c38d">
+<div id="cell-62" class="cell" data-outputid="03902252-6066-445a-b4c2-05ce4518c38d">
 <div class="sourceCode cell-code" id="cb43"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>results <span class="op">=</span> model2.evaluate(test_ds)</span>
 <span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f'Test accuracy is </span><span class="sc">{</span>results[<span class="dv">1</span>]<span class="sc">}</span><span class="ss">'</span>) <span class="co">#</span></span>
 <span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f'Test lost is </span><span class="sc">{</span>results[<span class="dv">0</span>]<span class="sc">}</span><span class="ss">'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -932,7 +950,7 @@ Test accuracy is 0.7360275387763977
 Test lost is 0.5340545773506165</code></pre>
 </div>
 </div>
-<div id="cell-62" class="cell" data-outputid="7ce80228-e86f-479b-9268-c4f6d38210c1">
+<div id="cell-63" class="cell" data-outputid="7ce80228-e86f-479b-9268-c4f6d38210c1">
 <div class="sourceCode cell-code" id="cb45"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a>results <span class="op">=</span> model3.evaluate(test_ds)</span>
 <span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f'Test accuracy is </span><span class="sc">{</span>results[<span class="dv">1</span>]<span class="sc">}</span><span class="ss">'</span>) <span class="co">#</span></span>
 <span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f'Test lost is </span><span class="sc">{</span>results[<span class="dv">0</span>]<span class="sc">}</span><span class="ss">'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
