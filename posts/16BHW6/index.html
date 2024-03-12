@@ -254,7 +254,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h3 class="anchored" data-anchor-id="make-a-dataset">2. Make a Dataset</h3>
 <p>We now will write a function “make_dataset”, which - 1. Change the text to lowercase. - 2. Remove stopwords from the article text and title. - 3. Construct and return a tf.data.Dataset with two inputs and one output. The input should be of the form (title,text) ,and the output should consist only of the <strong>fake</strong> column. <br></p>
 <p>Since batch can greatly increase the speeding of traning, we will also need to <strong>batch</strong> our dataset prior to returning it using “my_data_set.batch(100)”.</p>
-<div id="cell-11" class="cell" data-execution_count="3">
+<div id="cell-11" class="cell" data-execution_count="18">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> tensorflow <span class="im">as</span> tf</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> nltk</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> nltk.corpus <span class="im">import</span> stopwords</span>
@@ -276,38 +276,41 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>        stopwords_nltk <span class="op">=</span> <span class="bu">set</span>(stopwords.words(<span class="st">'english'</span>))</span>
 <span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>        words <span class="op">=</span> text.split()</span>
 <span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>        text <span class="op">=</span> <span class="st">' '</span>.join([word <span class="cf">for</span> word <span class="kw">in</span> words <span class="cf">if</span> word <span class="kw">not</span> <span class="kw">in</span> stopwords_nltk])</span>
-<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> text</span>
-<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Apply preprocessing to title and text columns</span></span>
-<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>    data[<span class="st">'title'</span>] <span class="op">=</span> data[<span class="st">'title'</span>].<span class="bu">apply</span>(preprocess_text)</span>
-<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>    data[<span class="st">'text'</span>] <span class="op">=</span> data[<span class="st">'text'</span>].<span class="bu">apply</span>(preprocess_text)</span>
-<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Create tf.data.Dataset</span></span>
-<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>    dataset <span class="op">=</span> tf.data.Dataset.from_tensor_slices((</span>
-<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>        {<span class="st">"title"</span>: data[<span class="st">'title'</span>], <span class="st">"text"</span>: data[<span class="st">'text'</span>]},  <span class="co"># Inputs</span></span>
-<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>        data[<span class="st">'fake'</span>]  <span class="co"># Output</span></span>
-<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>    ))</span>
-<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>    <span class="co">#Here we make sure that the constructed Dataset has multiple inputs</span></span>
-<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Batch the dataset</span></span>
-<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>    dataset <span class="op">=</span> dataset.batch(<span class="dv">100</span>)</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Remove en dash "–"</span></span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>        text <span class="op">=</span> text.replace(<span class="st">'–'</span>, <span class="st">''</span>)</span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> text</span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Apply preprocessing to title and text columns</span></span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>    data[<span class="st">'title'</span>] <span class="op">=</span> data[<span class="st">'title'</span>].<span class="bu">apply</span>(preprocess_text)</span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>    data[<span class="st">'text'</span>] <span class="op">=</span> data[<span class="st">'text'</span>].<span class="bu">apply</span>(preprocess_text)</span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Create tf.data.Dataset</span></span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>    dataset <span class="op">=</span> tf.data.Dataset.from_tensor_slices((</span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>        {<span class="st">"title"</span>: data[<span class="st">'title'</span>], <span class="st">"text"</span>: data[<span class="st">'text'</span>]},  <span class="co"># Inputs</span></span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>        data[<span class="st">'fake'</span>]  <span class="co"># Output</span></span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>    ))</span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>    <span class="co">#Here we make sure that the constructed Dataset has multiple inputs</span></span>
 <span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> dataset</span>
-<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a><span class="co"># Example usage:</span></span>
-<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a><span class="co"># Assuming train_data is your training DataFrame loaded from the CSV file</span></span>
-<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a>train_dataset <span class="op">=</span> make_dataset(training_data)</span>
-<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a>train_data<span class="op">=</span>train_dataset</span>
-<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a><span class="co"># Example of iterating through the dataset</span></span>
-<span id="cb4-45"><a href="#cb4-45" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> inputs, output <span class="kw">in</span> train_dataset.take(<span class="dv">1</span>):</span>
-<span id="cb4-46"><a href="#cb4-46" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"Title:"</span>, inputs[<span class="st">'title'</span>][<span class="dv">0</span>].numpy())</span>
-<span id="cb4-47"><a href="#cb4-47" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"Text:"</span>, inputs[<span class="st">'text'</span>][<span class="dv">0</span>].numpy())</span>
-<span id="cb4-48"><a href="#cb4-48" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"Fake:"</span>, output[<span class="dv">0</span>].numpy())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Batch the dataset</span></span>
+<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a>    dataset <span class="op">=</span> dataset.batch(<span class="dv">100</span>)</span>
+<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> dataset</span>
+<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a><span class="co"># Example usage:</span></span>
+<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a><span class="co"># Assuming train_data is your training DataFrame loaded from the CSV file</span></span>
+<span id="cb4-45"><a href="#cb4-45" aria-hidden="true" tabindex="-1"></a>train_dataset <span class="op">=</span> make_dataset(training_data)</span>
+<span id="cb4-46"><a href="#cb4-46" aria-hidden="true" tabindex="-1"></a>train_data<span class="op">=</span>train_dataset</span>
+<span id="cb4-47"><a href="#cb4-47" aria-hidden="true" tabindex="-1"></a><span class="co"># Example of iterating through the dataset</span></span>
+<span id="cb4-48"><a href="#cb4-48" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> inputs, output <span class="kw">in</span> train_dataset.take(<span class="dv">1</span>):</span>
+<span id="cb4-49"><a href="#cb4-49" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"Title:"</span>, inputs[<span class="st">'title'</span>][<span class="dv">0</span>].numpy())</span>
+<span id="cb4-50"><a href="#cb4-50" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"Text:"</span>, inputs[<span class="st">'text'</span>][<span class="dv">0</span>].numpy())</span>
+<span id="cb4-51"><a href="#cb4-51" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"Fake:"</span>, output[<span class="dv">0</span>].numpy())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>[nltk_data] Downloading package stopwords to
 [nltk_data]     /Users/mabook/nltk_data...
 [nltk_data]   Package stopwords is already up-to-date!
-2024-03-11 19:58:22.488896: I tensorflow/core/common_runtime/executor.cc:1197] [/device:CPU:0] (DEBUG INFO) Executor start aborting (this does not indicate an error and you can ignore this message): INVALID_ARGUMENT: You must feed a value for placeholder tensor 'Placeholder/_2' with dtype int64 and shape [22449]
+2024-03-11 21:02:31.865267: I tensorflow/core/common_runtime/executor.cc:1197] [/device:CPU:0] (DEBUG INFO) Executor start aborting (this does not indicate an error and you can ignore this message): INVALID_ARGUMENT: You must feed a value for placeholder tensor 'Placeholder/_2' with dtype int64 and shape [22449]
      [[{{node Placeholder/_2}}]]</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
@@ -319,7 +322,7 @@ Fake: 0</code></pre>
 <section id="validation-data" class="level4">
 <h4 class="anchored" data-anchor-id="validation-data">Validation Data</h4>
 <p>Now we have constructed our primary Dataset. We split 20% of it to use for validation. Then determining a base rate is also an important step. We will determine the base rate for this data set by examining the labels on the training set.</p>
-<div id="cell-14" class="cell" data-execution_count="4">
+<div id="cell-14" class="cell" data-execution_count="19">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> split_train_val_dataset(dataset, val_ratio<span class="op">=</span><span class="fl">0.2</span>): <span class="co">#the ratio fo validation set, we set 0.2 (20%)</span></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Determine sizes of train, val</span></span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    val_size <span class="op">=</span> <span class="bu">int</span>(val_ratio <span class="op">*</span> <span class="bu">len</span>(dataset))</span>
@@ -373,7 +376,7 @@ Number of real news articles: 10709</code></pre>
 <p>The base rate of 0.5229 indicates that approximately 52.3% of the articles in the dataset are labeled as fake news. This means that if we were to randomly guess the label of an article without using any model or additional information, we would have a 52.3% chance of correctly identifying it as fake news.</p>
 <p>In the next step, we import the re module for regular expressions: we define the vocabulary size as 2000. Then, we create a standardization function to preprocess the text by converting it to lowercase and removing punctuation using regular expressions. We can then create a TextVectorization layer called title_vectorize_layer. We configure it with the standardization function, vocabulary size, output mode as integers, and output sequence length of 500.</p>
 <p>Finally, we adapt the title_vectorize_layer to the training data by extracting the “title” field from the dataset using train_data.map(lambda x, y: x[“title”]). This process creates a TextVectorization layer that can transform text titles into fixed-length integer sequences, ready to be used in a neural network model.</p>
-<div id="cell-17" class="cell" data-execution_count="5">
+<div id="cell-17" class="cell" data-execution_count="20">
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> re</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Define the size of the vocabulary</span></span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>size_vocabulary <span class="op">=</span> <span class="dv">2000</span></span>
@@ -397,12 +400,11 @@ Number of real news articles: 10709</code></pre>
 <span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Adapt the TextVectorization layer to the training data</span></span>
 <span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>title_vectorize_layer.adapt(train_data.<span class="bu">map</span>(<span class="kw">lambda</span> x, y: x[<span class="st">"title"</span>]))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>2024-03-11 19:58:30.287517: I tensorflow/core/common_runtime/executor.cc:1197] [/device:CPU:0] (DEBUG INFO) Executor start aborting (this does not indicate an error and you can ignore this message): INVALID_ARGUMENT: You must feed a value for placeholder tensor 'Placeholder/_2' with dtype int64 and shape [22449]
-     [[{{node Placeholder/_2}}]]
-2024-03-11 19:58:30.292797: W tensorflow/tsl/platform/profile_utils/cpu_utils.cc:128] Failed to get CPU frequency: 0 Hz</code></pre>
+<pre><code>2024-03-11 21:02:48.763894: I tensorflow/core/common_runtime/executor.cc:1197] [/device:CPU:0] (DEBUG INFO) Executor start aborting (this does not indicate an error and you can ignore this message): INVALID_ARGUMENT: You must feed a value for placeholder tensor 'Placeholder/_2' with dtype int64 and shape [22449]
+     [[{{node Placeholder/_2}}]]</code></pre>
 </div>
 </div>
-<div id="cell-18" class="cell" data-execution_count="6">
+<div id="cell-18" class="cell" data-execution_count="21">
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co">#As for Text Vectoriazation, there is one option of code:</span></span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="co">"""</span></span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="co">preparing a text vectorization layer for tf model</span></span>
@@ -421,7 +423,7 @@ Number of real news articles: 10709</code></pre>
 <span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a><span class="co">    output_sequence_length=500) </span></span>
 <span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a><span class="co">title_vectorize_layer.adapt(train.map(lambda x, y: x["title"]))"""</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="6">
+<div class="cell-output cell-output-display" data-execution_count="21">
 <pre><code>'\npreparing a text vectorization layer for tf model\nsize_vocabulary = 2000\n\ndef standardization(input_data):\n    lowercase = tf.strings.lower(input_data)\n    no_punctuation = tf.strings.regex_replace(lowercase,\n                                  \'[%s]\' % re.escape(string.punctuation),\'\')\n    return no_punctuation \n\ntitle_vectorize_layer = TextVectorization(\n    standardize=standardization,\n    max_tokens=size_vocabulary, # only consider this many words\n    output_mode=\'int\',\n    output_sequence_length=500) \n\ntitle_vectorize_layer.adapt(train.map(lambda x, y: x["title"]))'</code></pre>
 </div>
 </div>
@@ -452,7 +454,7 @@ Number of real news articles: 10709</code></pre>
 </tr>
 </tbody>
 </table>
-<div id="cell-22" class="cell" data-execution_count="7">
+<div id="cell-22" class="cell" data-execution_count="22">
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co">#import libraries</span></span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> re</span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> string</span>
@@ -575,7 +577,7 @@ Number of real news articles: 10709</code></pre>
 <span id="cb13-120"><a href="#cb13-120" aria-hidden="true" tabindex="-1"></a>plt.legend()</span>
 <span id="cb13-121"><a href="#cb13-121" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
 <span id="cb13-122"><a href="#cb13-122" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-123"><a href="#cb13-123" aria-hidden="true" tabindex="-1"></a><span class="co"># Define inputs for combined model (Model 3)</span></span>
+<span id="cb13-123"><a href="#cb13-123" aria-hidden="true" tabindex="-1"></a><span class="co"># Define inputs for combined model </span></span>
 <span id="cb13-124"><a href="#cb13-124" aria-hidden="true" tabindex="-1"></a>titles_input <span class="op">=</span> Input(shape<span class="op">=</span>(<span class="dv">1</span>,), name<span class="op">=</span><span class="st">"title"</span>, dtype<span class="op">=</span><span class="st">"string"</span>)</span>
 <span id="cb13-125"><a href="#cb13-125" aria-hidden="true" tabindex="-1"></a>text_input <span class="op">=</span> Input(shape<span class="op">=</span>(<span class="dv">1</span>,), name<span class="op">=</span><span class="st">"text"</span>, dtype<span class="op">=</span><span class="st">"string"</span>)</span>
 <span id="cb13-126"><a href="#cb13-126" aria-hidden="true" tabindex="-1"></a></span>
@@ -611,7 +613,7 @@ Number of real news articles: 10709</code></pre>
 <span id="cb13-156"><a href="#cb13-156" aria-hidden="true" tabindex="-1"></a><span class="co"># The "fake" name is assigned to this output layer</span></span>
 <span id="cb13-157"><a href="#cb13-157" aria-hidden="true" tabindex="-1"></a><span class="co"># The output layer takes the concatenated features (main) as input</span></span>
 <span id="cb13-158"><a href="#cb13-158" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-159"><a href="#cb13-159" aria-hidden="true" tabindex="-1"></a><span class="co"># Define and compile combined model</span></span>
+<span id="cb13-159"><a href="#cb13-159" aria-hidden="true" tabindex="-1"></a><span class="co"># Define and compile combined model (Model 3)</span></span>
 <span id="cb13-160"><a href="#cb13-160" aria-hidden="true" tabindex="-1"></a>model3 <span class="op">=</span> Model(inputs<span class="op">=</span>[titles_input, text_input], outputs<span class="op">=</span>output) <span class="co"># The model's output is the output layer defined above</span></span>
 <span id="cb13-161"><a href="#cb13-161" aria-hidden="true" tabindex="-1"></a>model3.<span class="bu">compile</span>(optimizer<span class="op">=</span><span class="st">"adam"</span>,</span>
 <span id="cb13-162"><a href="#cb13-162" aria-hidden="true" tabindex="-1"></a>              loss<span class="op">=</span>losses.SparseCategoricalCrossentropy(from_logits<span class="op">=</span><span class="va">True</span>), </span>
@@ -621,7 +623,7 @@ Number of real news articles: 10709</code></pre>
 <span id="cb13-166"><a href="#cb13-166" aria-hidden="true" tabindex="-1"></a><span class="co"># Train combined model</span></span>
 <span id="cb13-167"><a href="#cb13-167" aria-hidden="true" tabindex="-1"></a>history <span class="op">=</span> model3.fit(train, validation_data<span class="op">=</span>val,epochs<span class="op">=</span><span class="dv">50</span>, verbose<span class="op">=</span><span class="va">False</span>)</span>
 <span id="cb13-168"><a href="#cb13-168" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-169"><a href="#cb13-169" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot training history for combined model</span></span>
+<span id="cb13-169"><a href="#cb13-169" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot training history for combined model 3</span></span>
 <span id="cb13-170"><a href="#cb13-170" aria-hidden="true" tabindex="-1"></a>plt.plot(history.history[<span class="st">"accuracy"</span>], label<span class="op">=</span><span class="st">"training"</span>)</span>
 <span id="cb13-171"><a href="#cb13-171" aria-hidden="true" tabindex="-1"></a>plt.plot(history.history[<span class="st">"val_accuracy"</span>], label<span class="op">=</span><span class="st">"validation"</span>)</span>
 <span id="cb13-172"><a href="#cb13-172" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"Epoch"</span>)</span>
@@ -630,18 +632,22 @@ Number of real news articles: 10709</code></pre>
 <span id="cb13-175"><a href="#cb13-175" aria-hidden="true" tabindex="-1"></a>plt.legend()</span>
 <span id="cb13-176"><a href="#cb13-176" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>2024-03-11 19:58:30.715090: I tensorflow/core/common_runtime/executor.cc:1197] [/device:CPU:0] (DEBUG INFO) Executor start aborting (this does not indicate an error and you can ignore this message): INVALID_ARGUMENT: You must feed a value for placeholder tensor 'Placeholder/_2' with dtype int64 and shape [22449]
+<pre><code>2024-03-11 21:02:54.838437: I tensorflow/core/common_runtime/executor.cc:1197] [/device:CPU:0] (DEBUG INFO) Executor start aborting (this does not indicate an error and you can ignore this message): INVALID_ARGUMENT: You must feed a value for placeholder tensor 'Placeholder/_2' with dtype int64 and shape [22449]
      [[{{node Placeholder/_2}}]]
-2024-03-11 19:58:30.852925: I tensorflow/core/common_runtime/executor.cc:1197] [/device:CPU:0] (DEBUG INFO) Executor start aborting (this does not indicate an error and you can ignore this message): INVALID_ARGUMENT: You must feed a value for placeholder tensor 'Placeholder/_2' with dtype int64 and shape [22449]
+2024-03-11 21:02:55.032740: I tensorflow/core/common_runtime/executor.cc:1197] [/device:CPU:0] (DEBUG INFO) Executor start aborting (this does not indicate an error and you can ignore this message): INVALID_ARGUMENT: You must feed a value for placeholder tensor 'Placeholder/_2' with dtype int64 and shape [22449]
      [[{{node Placeholder/_2}}]]
-2024-03-11 19:58:31.640074: I tensorflow/core/common_runtime/executor.cc:1197] [/device:CPU:0] (DEBUG INFO) Executor start aborting (this does not indicate an error and you can ignore this message): INVALID_ARGUMENT: You must feed a value for placeholder tensor 'Placeholder/_2' with dtype int64 and shape [22449]
+2024-03-11 21:02:56.595654: I tensorflow/core/common_runtime/executor.cc:1197] [/device:CPU:0] (DEBUG INFO) Executor start aborting (this does not indicate an error and you can ignore this message): INVALID_ARGUMENT: You must feed a value for placeholder tensor 'Placeholder/_2' with dtype int64 and shape [22449]
      [[{{node Placeholder/_2}}]]
-/Users/mabook/anaconda3/envs/PIC16B-24W-generic.yml/lib/python3.11/site-packages/keras/engine/functional.py:639: UserWarning: Input dict contained keys ['text'] which did not match any model input. They will be ignored by the model.
-  inputs = self._flatten_to_reference_inputs(inputs)
-2024-03-11 19:58:32.357019: I tensorflow/core/common_runtime/executor.cc:1197] [/device:CPU:0] (DEBUG INFO) Executor start aborting (this does not indicate an error and you can ignore this message): INVALID_ARGUMENT: You must feed a value for placeholder tensor 'Placeholder/_2' with dtype int64 and shape [22449]
+/Users/mabook/anaconda3/envs/PIC16B-24W-generic.yml/lib/python3.11/site-packages/keras/engine/functional.py:639: UserWarning:
+
+Input dict contained keys ['text'] which did not match any model input. They will be ignored by the model.
+
+2024-03-11 21:02:57.577796: I tensorflow/core/common_runtime/executor.cc:1197] [/device:CPU:0] (DEBUG INFO) Executor start aborting (this does not indicate an error and you can ignore this message): INVALID_ARGUMENT: You must feed a value for placeholder tensor 'Placeholder/_2' with dtype int64 and shape [22449]
      [[{{node Placeholder/_2}}]]
-/Users/mabook/anaconda3/envs/PIC16B-24W-generic.yml/lib/python3.11/site-packages/keras/engine/functional.py:639: UserWarning: Input dict contained keys ['title'] which did not match any model input. They will be ignored by the model.
-  inputs = self._flatten_to_reference_inputs(inputs)</code></pre>
+/Users/mabook/anaconda3/envs/PIC16B-24W-generic.yml/lib/python3.11/site-packages/keras/engine/functional.py:639: UserWarning:
+
+Input dict contained keys ['title'] which did not match any model input. They will be ignored by the model.
+</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <div>
@@ -665,7 +671,7 @@ Number of real news articles: 10709</code></pre>
 </div>
 </div>
 </div>
-<div id="cell-23" class="cell" data-execution_count="8">
+<div id="cell-23" class="cell" data-execution_count="24">
 <div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Evaluate Model 1 on the validation dataset</span></span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>val_loss_model1, val_accuracy_model1 <span class="op">=</span> model1.evaluate(val)</span>
 <span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Model 1 Validation Accuracy:"</span>, val_accuracy_model1)</span>
@@ -690,18 +696,18 @@ Number of real news articles: 10709</code></pre>
 <span id="cb15-22"><a href="#cb15-22" aria-hidden="true" tabindex="-1"></a>train_loss_model3, train_accuracy_model3 <span class="op">=</span> model3.evaluate(train)</span>
 <span id="cb15-23"><a href="#cb15-23" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Model 3 Training Accuracy:"</span>, train_accuracy_model3)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>45/45 [==============================] - 0s 3ms/step - loss: 0.1491 - accuracy: 0.9418
-Model 1 Validation Accuracy: 0.941777765750885
-180/180 [==============================] - 0s 872us/step - loss: 0.1036 - accuracy: 0.9578
-Model 1 Training Accuracy: 0.9577692151069641
-45/45 [==============================] - 0s 3ms/step - loss: 0.1648 - accuracy: 0.9767
-Model 2 Validation Accuracy: 0.9766666889190674
-180/180 [==============================] - 1s 3ms/step - loss: 0.0042 - accuracy: 0.9994
-Model 2 Training Accuracy: 0.9994428753852844
-45/45 [==============================] - 0s 3ms/step - loss: 0.0849 - accuracy: 0.9860
-Model 3 Validation Accuracy: 0.9860000014305115
-180/180 [==============================] - 1s 3ms/step - loss: 7.9322e-04 - accuracy: 0.9998
-Model 3 Training Accuracy: 0.9997771382331848</code></pre>
+<pre><code>45/45 [==============================] - 0s 1ms/step - loss: 0.1466 - accuracy: 0.9431
+Model 1 Validation Accuracy: 0.9431111216545105
+180/180 [==============================] - 0s 2ms/step - loss: 0.0976 - accuracy: 0.9608
+Model 1 Training Accuracy: 0.9608334898948669
+45/45 [==============================] - 0s 5ms/step - loss: 0.2026 - accuracy: 0.9742
+Model 2 Validation Accuracy: 0.9742222428321838
+180/180 [==============================] - 1s 5ms/step - loss: 0.0153 - accuracy: 0.9975
+Model 2 Training Accuracy: 0.9974929094314575
+45/45 [==============================] - 0s 3ms/step - loss: 0.0899 - accuracy: 0.9849
+Model 3 Validation Accuracy: 0.9848889112472534
+180/180 [==============================] - 1s 3ms/step - loss: 9.9282e-04 - accuracy: 1.0000
+Model 3 Training Accuracy: 1.0</code></pre>
 </div>
 </div>
 <table class="table">
@@ -715,18 +721,18 @@ Model 3 Training Accuracy: 0.9997771382331848</code></pre>
 <tbody>
 <tr class="odd">
 <td>Model 1</td>
-<td>0.9578</td>
-<td>0.9418</td>
+<td>0.9608</td>
+<td>0.9431</td>
 </tr>
 <tr class="even">
 <td>Model 2</td>
-<td>0.9994</td>
-<td>0.9767</td>
+<td>0.9975</td>
+<td>0.9742</td>
 </tr>
 <tr class="odd">
 <td>Model 3</td>
-<td>0.9998</td>
-<td>0.9860</td>
+<td>1.0000</td>
+<td>0.9849</td>
 </tr>
 </tbody>
 </table>
@@ -747,7 +753,7 @@ Model 3 Training Accuracy: 0.9997771382331848</code></pre>
 <span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>test_data <span class="op">=</span> make_dataset(test_dataset)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Now we evaluate model 3 on the data:</p>
-<div id="cell-31" class="cell" data-execution_count="9">
+<div id="cell-31" class="cell" data-execution_count="25">
 <div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Evaluate Model 3</span></span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>evaluation_result <span class="op">=</span> model3.evaluate(test_data)</span>
 <span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -762,12 +768,12 @@ Model 3 Training Accuracy: 0.9997771382331848</code></pre>
 <span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">'Model3 Evaluation Results on Test Data'</span>)</span>
 <span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>  1/225 [..............................] - ETA: 1s - loss: 0.0654 - accuracy: 0.9700 47/225 [=====&gt;........................] - ETA: 0s - loss: 0.0868 - accuracy: 0.9849225/225 [==============================] - 1s 3ms/step - loss: 0.0791 - accuracy: 0.9853
-Test Loss: 0.07907311618328094
-Test Accuracy: 0.9852554798126221</code></pre>
+<pre><code> 34/225 [===&gt;..........................] - ETA: 0s - loss: 0.1019 - accuracy: 0.9812225/225 [==============================] - 1s 3ms/step - loss: 0.0881 - accuracy: 0.9828
+Test Loss: 0.08812551945447922
+Test Accuracy: 0.9828054904937744</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>2024-03-11 20:01:01.381503: I tensorflow/core/common_runtime/executor.cc:1197] [/device:CPU:0] (DEBUG INFO) Executor start aborting (this does not indicate an error and you can ignore this message): INVALID_ARGUMENT: You must feed a value for placeholder tensor 'Placeholder/_2' with dtype int64 and shape [22449]
+<pre><code>2024-03-11 21:06:33.586928: I tensorflow/core/common_runtime/executor.cc:1197] [/device:CPU:0] (DEBUG INFO) Executor start aborting (this does not indicate an error and you can ignore this message): INVALID_ARGUMENT: You must feed a value for placeholder tensor 'Placeholder/_2' with dtype int64 and shape [22449]
      [[{{node Placeholder/_2}}]]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
@@ -778,191 +784,158 @@ Test Accuracy: 0.9852554798126221</code></pre>
 </div>
 </div>
 </div>
-<p>Based on the provided test results, if we used the model as a fake news detector, we would be correct approximately 98.52% of the time. A test accuracy of 98.52% suggests that the model has learned to distinguish between real and fake news with high accuracy based on the given dataset.</p>
+<p>Based on the provided test results, if we used the model as a fake news detector, we would be correct approximately 98% of the time. A test accuracy of 98% suggests that the model has learned to distinguish between real and fake news with high accuracy based on the given dataset.</p>
 </section>
 <section id="embedding-visualization" class="level2">
 <h2 class="anchored" data-anchor-id="embedding-visualization">5. Embedding Visualization</h2>
 <p>Now it could be fun to look at the embedding learned by our model. We need to comment on at least 5 words whose location in the embedding you find interpretable.</p>
-<div id="cell-35" class="cell" data-execution_count="10">
-<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> plotly.io <span class="im">as</span> pio</span>
-<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="co"># This line imports the plotly.io module.</span></span>
-<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a><span class="co"># The plotly.io module provides tools for configuring the default rendering behavior of Plotly figures.</span></span>
-<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>pio.renderers.default <span class="op">=</span> <span class="st">"iframe"</span> <span class="co"># The "iframe" renderer displays figures inside an HTML iframe element.</span></span>
-<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a><span class="co"># This is useful for rendering interactive Plotly figures in environments like Jupyter Notebook or web pages.</span></span>
-<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> plotly.express <span class="im">as</span> px</span>
-<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Imports the plotly.express module</span></span>
+<section id="principal-component-analysis-pca" class="level3">
+<h3 class="anchored" data-anchor-id="principal-component-analysis-pca">Principal Component Analysis (PCA)</h3>
+<p>PCA is a dimensionality reduction technique that aims to transform high-dimensional data into a lower-dimensional space while preserving the most important information. It identifies the principal components, which are the directions of maximum variance in the data.</p>
+<p>By applying PCA to the learned word embeddings, we can reduce their dimensionality and visualize them in a lower-dimensional space, such as 2D or 3D. This allows us to understand the structure and relationships between the word embeddings in a more interpretable way.</p>
+<div id="cell-36" class="cell" data-execution_count="26">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> plotly.express <span class="im">as</span> px</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.decomposition <span class="im">import</span> PCA</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Assuming you have obtained the embedding weights and vocabulary</span></span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Replace 'weights' and 'vocab' with actual values</span></span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>weights <span class="op">=</span> model1.get_layer(<span class="st">'embedding_title'</span>).get_weights()[<span class="dv">0</span>]  <span class="co"># Example embedding weights</span></span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>vocab <span class="op">=</span> title_vectorize_layer.get_vocabulary()  <span class="co"># Example vocabulary</span></span>
 <span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
-<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.decomposition <span class="im">import</span> PCA <span class="co"># Imports the PCA class from the sklearn.decomposition module.</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<section id="principal-component-analysis" class="level4">
-<h4 class="anchored" data-anchor-id="principal-component-analysis">Principal Component Analysis</h4>
-<div id="cell-37" class="cell" data-execution_count="11">
-<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Get embedding weights and vocabulary</span></span>
-<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>weights <span class="op">=</span> model1.get_layer(<span class="st">'embedding_title'</span>).get_weights()[<span class="dv">0</span>] <span class="co"># get the weights from embedding layer</span></span>
-<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>vocab <span class="op">=</span> title_vectorize_layer.get_vocabulary()  <span class="co"># get the vocabulary from our data prep, saving for later</span></span>
-<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Perform PCA for dimensionality reduction</span></span>
-<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>pca <span class="op">=</span> PCA(n_components<span class="op">=</span><span class="dv">3</span>)</span>
-<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>weights_pca <span class="op">=</span> pca.fit_transform(weights)</span>
-<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Extract embeddings for each word</span></span>
-<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>embedding_dict <span class="op">=</span> {word: embedding <span class="cf">for</span> word, embedding <span class="kw">in</span> <span class="bu">zip</span>(vocab, weights_pca)}</span>
-<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Sort words based on embedding values</span></span>
-<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a>sorted_words <span class="op">=</span> <span class="bu">sorted</span>(embedding_dict, key<span class="op">=</span><span class="kw">lambda</span> x: np.linalg.norm(embedding_dict[x]), reverse<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Print the top words with highest embeddings</span></span>
-<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a>num_top_words <span class="op">=</span> <span class="dv">5</span></span>
-<span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Top </span><span class="sc">{</span>num_top_words<span class="sc">}</span><span class="ss"> words with highest embeddings:"</span>)</span>
-<span id="cb22-18"><a href="#cb22-18" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> word <span class="kw">in</span> sorted_words[:num_top_words]:</span>
-<span id="cb22-19"><a href="#cb22-19" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"Word: </span><span class="sc">{</span>word<span class="sc">}</span><span class="ss">, Embedding: </span><span class="sc">{</span>embedding_dict[word]<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb22-20"><a href="#cb22-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-21"><a href="#cb22-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Create DataFrame for plotting</span></span>
-<span id="cb22-22"><a href="#cb22-22" aria-hidden="true" tabindex="-1"></a>embedding_df <span class="op">=</span> pd.DataFrame({</span>
-<span id="cb22-23"><a href="#cb22-23" aria-hidden="true" tabindex="-1"></a>    <span class="st">'word'</span>: vocab, <span class="co"># Create a column named 'word' in the DataFrame</span></span>
-<span id="cb22-24"><a href="#cb22-24" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Assign the vocab list to this column, which contains all the words in the vocabulary</span></span>
-<span id="cb22-25"><a href="#cb22-25" aria-hidden="true" tabindex="-1"></a>    <span class="st">'x0'</span>: weights_pca[:, <span class="dv">0</span>],  <span class="co"># Assign the first column (index 0) of the weights_pca array to this column</span></span>
-<span id="cb22-26"><a href="#cb22-26" aria-hidden="true" tabindex="-1"></a>    <span class="st">'x1'</span>: weights_pca[:, <span class="dv">1</span>], <span class="co"># Assign the second column (index 1)</span></span>
-<span id="cb22-27"><a href="#cb22-27" aria-hidden="true" tabindex="-1"></a>    <span class="st">'x2'</span>: weights_pca[:, <span class="dv">2</span>] <span class="co"># Assign the third column (index 2)</span></span>
-<span id="cb22-28"><a href="#cb22-28" aria-hidden="true" tabindex="-1"></a>})</span>
-<span id="cb22-29"><a href="#cb22-29" aria-hidden="true" tabindex="-1"></a><span class="co"># The resulting DataFrame will have four columns: 'word', 'x0', 'x1', and 'x2'</span></span>
-<span id="cb22-30"><a href="#cb22-30" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-31"><a href="#cb22-31" aria-hidden="true" tabindex="-1"></a><span class="co"># Set the renderer to "iframe"</span></span>
-<span id="cb22-32"><a href="#cb22-32" aria-hidden="true" tabindex="-1"></a>pio.renderers.default <span class="op">=</span> <span class="st">"iframe"</span></span>
-<span id="cb22-33"><a href="#cb22-33" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-34"><a href="#cb22-34" aria-hidden="true" tabindex="-1"></a>pio.renderers.default <span class="op">=</span> <span class="st">"iframe"</span></span>
-<span id="cb22-35"><a href="#cb22-35" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-36"><a href="#cb22-36" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a scatter plot using the px.scatter function from the plotly.express module</span></span>
-<span id="cb22-37"><a href="#cb22-37" aria-hidden="true" tabindex="-1"></a><span class="co"># The scatter plot visualizes the word embeddings in a 2D space</span></span>
-<span id="cb22-38"><a href="#cb22-38" aria-hidden="true" tabindex="-1"></a>fig <span class="op">=</span> px.scatter(embedding_df, </span>
-<span id="cb22-39"><a href="#cb22-39" aria-hidden="true" tabindex="-1"></a>                 x<span class="op">=</span><span class="st">"x0"</span>, </span>
-<span id="cb22-40"><a href="#cb22-40" aria-hidden="true" tabindex="-1"></a>                 y<span class="op">=</span><span class="st">"x1"</span>, </span>
-<span id="cb22-41"><a href="#cb22-41" aria-hidden="true" tabindex="-1"></a>                 size<span class="op">=</span>[<span class="dv">2</span>] <span class="op">*</span> <span class="bu">len</span>(embedding_df), </span>
-<span id="cb22-42"><a href="#cb22-42" aria-hidden="true" tabindex="-1"></a>                 hover_name<span class="op">=</span><span class="st">"word"</span>)</span>
-<span id="cb22-43"><a href="#cb22-43" aria-hidden="true" tabindex="-1"></a><span class="co"># Each point represents a word, positioned based on its 'x0' and 'x1' coordinates</span></span>
-<span id="cb22-44"><a href="#cb22-44" aria-hidden="true" tabindex="-1"></a><span class="co"># The size of all points is set to 2 (can be adjusted)</span></span>
-<span id="cb22-45"><a href="#cb22-45" aria-hidden="true" tabindex="-1"></a><span class="co"># Hovering over a point will show the corresponding word from the 'word' column</span></span>
-<span id="cb22-46"><a href="#cb22-46" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-47"><a href="#cb22-47" aria-hidden="true" tabindex="-1"></a><span class="co"># Save the plot as an HTML file</span></span>
-<span id="cb22-48"><a href="#cb22-48" aria-hidden="true" tabindex="-1"></a>output_path <span class="op">=</span> <span class="st">"/Users/mabook/Desktop/PIC16B/posts/16BHW6/scatter_plot.html"</span></span>
-<span id="cb22-49"><a href="#cb22-49" aria-hidden="true" tabindex="-1"></a>fig.write_html(output_path)</span>
-<span id="cb22-50"><a href="#cb22-50" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-51"><a href="#cb22-51" aria-hidden="true" tabindex="-1"></a><span class="co"># Display the plot</span></span>
-<span id="cb22-52"><a href="#cb22-52" aria-hidden="true" tabindex="-1"></a>fig.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Perform PCA for dimensionality reduction</span></span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>pca <span class="op">=</span> PCA(n_components<span class="op">=</span><span class="dv">3</span>)</span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>weights_pca <span class="op">=</span> pca.fit_transform(weights)</span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Extract embeddings for each word</span></span>
+<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a>embedding_dict <span class="op">=</span> {word: embedding <span class="cf">for</span> word, embedding <span class="kw">in</span> <span class="bu">zip</span>(vocab, weights_pca)}</span>
+<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-18"><a href="#cb21-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Sort words based on embedding values</span></span>
+<span id="cb21-19"><a href="#cb21-19" aria-hidden="true" tabindex="-1"></a>sorted_words <span class="op">=</span> <span class="bu">sorted</span>(embedding_dict, key<span class="op">=</span><span class="kw">lambda</span> x: np.linalg.norm(embedding_dict[x]), reverse<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb21-20"><a href="#cb21-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-21"><a href="#cb21-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Print the top words with highest embeddings</span></span>
+<span id="cb21-22"><a href="#cb21-22" aria-hidden="true" tabindex="-1"></a>num_top_words <span class="op">=</span> <span class="dv">5</span></span>
+<span id="cb21-23"><a href="#cb21-23" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Top </span><span class="sc">{</span>num_top_words<span class="sc">}</span><span class="ss"> words with highest embeddings:"</span>)</span>
+<span id="cb21-24"><a href="#cb21-24" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> word <span class="kw">in</span> sorted_words[:num_top_words]:</span>
+<span id="cb21-25"><a href="#cb21-25" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"Word: </span><span class="sc">{</span>word<span class="sc">}</span><span class="ss">, Embedding: </span><span class="sc">{</span>embedding_dict[word]<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb21-26"><a href="#cb21-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-27"><a href="#cb21-27" aria-hidden="true" tabindex="-1"></a><span class="co"># Perform additional analysis and commentary on the embeddings</span></span>
+<span id="cb21-28"><a href="#cb21-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-29"><a href="#cb21-29" aria-hidden="true" tabindex="-1"></a><span class="co"># Create DataFrame for plotting</span></span>
+<span id="cb21-30"><a href="#cb21-30" aria-hidden="true" tabindex="-1"></a>embedding_df <span class="op">=</span> pd.DataFrame({</span>
+<span id="cb21-31"><a href="#cb21-31" aria-hidden="true" tabindex="-1"></a>    <span class="st">'word'</span>: vocab,</span>
+<span id="cb21-32"><a href="#cb21-32" aria-hidden="true" tabindex="-1"></a>    <span class="st">'x0'</span>: weights_pca[:, <span class="dv">0</span>],</span>
+<span id="cb21-33"><a href="#cb21-33" aria-hidden="true" tabindex="-1"></a>    <span class="st">'x1'</span>: weights_pca[:, <span class="dv">1</span>],</span>
+<span id="cb21-34"><a href="#cb21-34" aria-hidden="true" tabindex="-1"></a>    <span class="st">'x2'</span>: weights_pca[:, <span class="dv">2</span>]</span>
+<span id="cb21-35"><a href="#cb21-35" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb21-36"><a href="#cb21-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-37"><a href="#cb21-37" aria-hidden="true" tabindex="-1"></a><span class="co"># Set the renderer to "iframe"</span></span>
+<span id="cb21-38"><a href="#cb21-38" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> plotly.io <span class="im">as</span> pio</span>
+<span id="cb21-39"><a href="#cb21-39" aria-hidden="true" tabindex="-1"></a>pio.renderers.default <span class="op">=</span> <span class="st">"iframe"</span></span>
+<span id="cb21-40"><a href="#cb21-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-41"><a href="#cb21-41" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a scatter plot using Plotly Express</span></span>
+<span id="cb21-42"><a href="#cb21-42" aria-hidden="true" tabindex="-1"></a>fig <span class="op">=</span> px.scatter_3d(embedding_df, x<span class="op">=</span><span class="st">'x0'</span>, y<span class="op">=</span><span class="st">'x1'</span>, z<span class="op">=</span><span class="st">'x2'</span>, hover_name<span class="op">=</span><span class="st">'word'</span>)</span>
+<span id="cb21-43"><a href="#cb21-43" aria-hidden="true" tabindex="-1"></a><span class="co"># Each point represents a word, positioned based on its 'x0', 'x1', and 'x2' coordinates</span></span>
+<span id="cb21-44"><a href="#cb21-44" aria-hidden="true" tabindex="-1"></a><span class="co"># Hovering over a point will show the corresponding word</span></span>
+<span id="cb21-45"><a href="#cb21-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-46"><a href="#cb21-46" aria-hidden="true" tabindex="-1"></a><span class="co"># Save the plot as an HTML file</span></span>
+<span id="cb21-47"><a href="#cb21-47" aria-hidden="true" tabindex="-1"></a>output_path <span class="op">=</span> <span class="st">"scatter_plot.html"</span></span>
+<span id="cb21-48"><a href="#cb21-48" aria-hidden="true" tabindex="-1"></a>fig.write_html(output_path)</span>
+<span id="cb21-49"><a href="#cb21-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-50"><a href="#cb21-50" aria-hidden="true" tabindex="-1"></a><span class="co"># Display the plot</span></span>
+<span id="cb21-51"><a href="#cb21-51" aria-hidden="true" tabindex="-1"></a>fig.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Top 5 words with highest embeddings:
-Word: video, Embedding: [ 6.0663528e+00 -2.3480777e-02 -1.8293615e-03]
-Word: factbox, Embedding: [-5.571019e+00  3.567055e-03  1.329361e-02]
-Word: trump’s, Embedding: [ 5.533627   -0.08201603  0.04996437]
-Word: –, Embedding: [ 5.2814813   0.01097411 -0.01051768]
-Word: gop, Embedding: [ 5.1912084   0.0837299  -0.03135618]</code></pre>
+Word: video, Embedding: [5.666067   0.06447994 0.02214868]
+Word: factbox, Embedding: [-5.255509   -0.02237466  0.04613917]
+Word: trump’s, Embedding: [5.005154   0.03613936 0.02672017]
+Word: obama’s, Embedding: [ 4.778542    0.02571037 -0.04872589]
+Word: gop, Embedding: [ 4.7234287   0.00562899 -0.02563044]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
-<iframe scrolling="no" width="100%" height="545px" src="iframe_figures/figure_11.html" frameborder="0" allowfullscreen=""></iframe>
+<iframe scrolling="no" width="100%" height="545px" src="iframe_figures/figure_26.html" frameborder="0" allowfullscreen=""></iframe>
 </div>
 </div>
+<p>PCA Embedding: 1. “video”: This word has the highest embedding in the PCA plot, with coordinates [5.666067, 0.06447994, 0.02214868]. Its location indicates that it is relatively distinct from other words in the embedding space. 2. “factbox”: The word “factbox” has the second-highest embedding, with coordinates [-5.255509, -0.02237466, 0.04613917]. Its negative x-coordinate suggests that it is located on the opposite side of the embedding space compared to the other top words. 3. “trump’s”: The word “trump’s” has the third-highest embedding, with coordinates [5.005154, 0.03613936, 0.02672017]. Its proximity to “video” indicates that these words may share some semantic similarities or appear in similar contexts. 4. “obama’s”: The word “obama’s” has the fourth-highest embedding, with coordinates [4.778542, 0.02571037, -0.04872589]. Its location near “trump’s” suggests that it is semantically related to this word. 5. “gop”: The word “gop” has the fifth-highest embedding, with coordinates [4.7234287, 0.00562899, -0.02563044]. Its proximity to “trump’s” and “obama’s” indicates that it may share some contextual similarities with these words.</p>
 </section>
 <section id="t-distributed-stochastic-neighbor-embedding-t-sne" class="level3">
 <h3 class="anchored" data-anchor-id="t-distributed-stochastic-neighbor-embedding-t-sne">T-Distributed Stochastic Neighbor Embedding (t-SNE)</h3>
 <p>T-SNE is a widely used technique for visualizing high-dimensional data in a lower-dimensional space, such as 2D or 3D. It aims to preserve the local structure of the data while revealing global patterns and clusters. By visualizing the word embeddings using t-SNE, we can gain insights into the semantic structure and relationships between words. Words that are semantically similar or related are expected to be clustered together in the t-SNE plot.</p>
-<div id="cell-39" class="cell" data-execution_count="12">
-<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
-<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> plotly.express <span class="im">as</span> px</span>
-<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.manifold <span class="im">import</span> TSNE</span>
-<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> plotly.io <span class="im">as</span> pio</span>
-<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Reduce the dimensionality of embeddings using t-SNE</span></span>
-<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>tsne <span class="op">=</span> TSNE(n_components<span class="op">=</span><span class="dv">2</span>, random_state<span class="op">=</span><span class="dv">42</span>)</span>
-<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>embedding_tsne <span class="op">=</span> tsne.fit_transform(weights)</span>
-<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Create DataFrame for visualization</span></span>
-<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a>embedding_df_tsne <span class="op">=</span> pd.DataFrame({</span>
-<span id="cb24-13"><a href="#cb24-13" aria-hidden="true" tabindex="-1"></a>    <span class="st">'word'</span> : vocab,</span>
-<span id="cb24-14"><a href="#cb24-14" aria-hidden="true" tabindex="-1"></a>    <span class="st">'x'</span> : embedding_tsne[:, <span class="dv">0</span>],</span>
-<span id="cb24-15"><a href="#cb24-15" aria-hidden="true" tabindex="-1"></a>    <span class="st">'y'</span> : embedding_tsne[:, <span class="dv">1</span>]</span>
-<span id="cb24-16"><a href="#cb24-16" aria-hidden="true" tabindex="-1"></a>})</span>
-<span id="cb24-17"><a href="#cb24-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-18"><a href="#cb24-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Set the renderer to "iframe"</span></span>
-<span id="cb24-19"><a href="#cb24-19" aria-hidden="true" tabindex="-1"></a>pio.renderers.default <span class="op">=</span> <span class="st">"iframe"</span></span>
-<span id="cb24-20"><a href="#cb24-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-21"><a href="#cb24-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Create scatter plot using Plotly for t-SNE embedding visualization</span></span>
-<span id="cb24-22"><a href="#cb24-22" aria-hidden="true" tabindex="-1"></a>fig_tsne <span class="op">=</span> px.scatter(embedding_df_tsne, x<span class="op">=</span><span class="st">'x'</span>, y<span class="op">=</span><span class="st">'y'</span>, hover_name<span class="op">=</span><span class="st">'word'</span>, title<span class="op">=</span><span class="st">'t-SNE Embedding Visualization'</span>)</span>
-<span id="cb24-23"><a href="#cb24-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-24"><a href="#cb24-24" aria-hidden="true" tabindex="-1"></a><span class="co"># Create the output directory if it doesn't exist</span></span>
-<span id="cb24-25"><a href="#cb24-25" aria-hidden="true" tabindex="-1"></a>output_dir <span class="op">=</span> <span class="st">"/Users/mabook/Desktop/PIC16B/posts/16BHW6"</span></span>
-<span id="cb24-26"><a href="#cb24-26" aria-hidden="true" tabindex="-1"></a>os.makedirs(output_dir, exist_ok<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb24-27"><a href="#cb24-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-28"><a href="#cb24-28" aria-hidden="true" tabindex="-1"></a><span class="co"># Save the plot as an HTML file</span></span>
-<span id="cb24-29"><a href="#cb24-29" aria-hidden="true" tabindex="-1"></a>output_path_tsne <span class="op">=</span> <span class="st">"/Users/mabook/Desktop/PIC16B/posts/16BHW6/tsne_plot.html"</span></span>
-<span id="cb24-30"><a href="#cb24-30" aria-hidden="true" tabindex="-1"></a>fig_tsne.write_html(output_path_tsne)</span>
-<span id="cb24-31"><a href="#cb24-31" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-32"><a href="#cb24-32" aria-hidden="true" tabindex="-1"></a><span class="co"># Print the top words with highest embeddings</span></span>
-<span id="cb24-33"><a href="#cb24-33" aria-hidden="true" tabindex="-1"></a>num_top_words <span class="op">=</span> <span class="dv">5</span></span>
-<span id="cb24-34"><a href="#cb24-34" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Top </span><span class="sc">{</span>num_top_words<span class="sc">}</span><span class="ss"> words with highest embeddings:"</span>)</span>
-<span id="cb24-35"><a href="#cb24-35" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> word <span class="kw">in</span> sorted_words[:num_top_words]:</span>
-<span id="cb24-36"><a href="#cb24-36" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"Word: </span><span class="sc">{</span>word<span class="sc">}</span><span class="ss">, Embedding: </span><span class="sc">{</span>embedding_dict[word]<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb24-37"><a href="#cb24-37" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-38"><a href="#cb24-38" aria-hidden="true" tabindex="-1"></a><span class="co"># Show the plot</span></span>
-<span id="cb24-39"><a href="#cb24-39" aria-hidden="true" tabindex="-1"></a>fig_tsne.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-39" class="cell" data-execution_count="27">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> plotly.express <span class="im">as</span> px</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.manifold <span class="im">import</span> TSNE</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Assuming you have obtained the embedding weights and vocabulary</span></span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Replace 'weights' and 'vocab' with actual values</span></span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>weights <span class="op">=</span> model1.get_layer(<span class="st">'embedding_title'</span>).get_weights()[<span class="dv">0</span>]  <span class="co"># Example embedding weights</span></span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>vocab <span class="op">=</span> title_vectorize_layer.get_vocabulary()  <span class="co"># Example vocabulary</span></span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Perform t-SNE for dimensionality reduction</span></span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a>tsne <span class="op">=</span> TSNE(n_components<span class="op">=</span><span class="dv">3</span>)</span>
+<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a>weights_tsne <span class="op">=</span> tsne.fit_transform(weights)</span>
+<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Extract embeddings for each word</span></span>
+<span id="cb23-16"><a href="#cb23-16" aria-hidden="true" tabindex="-1"></a>embedding_dict <span class="op">=</span> {word: embedding <span class="cf">for</span> word, embedding <span class="kw">in</span> <span class="bu">zip</span>(vocab, weights_tsne)}</span>
+<span id="cb23-17"><a href="#cb23-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-18"><a href="#cb23-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Sort words based on embedding values</span></span>
+<span id="cb23-19"><a href="#cb23-19" aria-hidden="true" tabindex="-1"></a>sorted_words <span class="op">=</span> <span class="bu">sorted</span>(embedding_dict, key<span class="op">=</span><span class="kw">lambda</span> x: np.linalg.norm(embedding_dict[x]), reverse<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb23-20"><a href="#cb23-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-21"><a href="#cb23-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Print the top words with highest embeddings</span></span>
+<span id="cb23-22"><a href="#cb23-22" aria-hidden="true" tabindex="-1"></a>num_top_words <span class="op">=</span> <span class="dv">5</span></span>
+<span id="cb23-23"><a href="#cb23-23" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Top </span><span class="sc">{</span>num_top_words<span class="sc">}</span><span class="ss"> words with highest embeddings:"</span>)</span>
+<span id="cb23-24"><a href="#cb23-24" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> word <span class="kw">in</span> sorted_words[:num_top_words]:</span>
+<span id="cb23-25"><a href="#cb23-25" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"Word: </span><span class="sc">{</span>word<span class="sc">}</span><span class="ss">, Embedding: </span><span class="sc">{</span>embedding_dict[word]<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb23-26"><a href="#cb23-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-27"><a href="#cb23-27" aria-hidden="true" tabindex="-1"></a><span class="co"># Create DataFrame for plotting</span></span>
+<span id="cb23-28"><a href="#cb23-28" aria-hidden="true" tabindex="-1"></a>embedding_df <span class="op">=</span> pd.DataFrame({</span>
+<span id="cb23-29"><a href="#cb23-29" aria-hidden="true" tabindex="-1"></a>    <span class="st">'word'</span>: vocab,</span>
+<span id="cb23-30"><a href="#cb23-30" aria-hidden="true" tabindex="-1"></a>    <span class="st">'x0'</span>: weights_tsne[:, <span class="dv">0</span>],</span>
+<span id="cb23-31"><a href="#cb23-31" aria-hidden="true" tabindex="-1"></a>    <span class="st">'x1'</span>: weights_tsne[:, <span class="dv">1</span>],</span>
+<span id="cb23-32"><a href="#cb23-32" aria-hidden="true" tabindex="-1"></a>    <span class="st">'x2'</span>: weights_tsne[:, <span class="dv">2</span>]</span>
+<span id="cb23-33"><a href="#cb23-33" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb23-34"><a href="#cb23-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-35"><a href="#cb23-35" aria-hidden="true" tabindex="-1"></a><span class="co"># Set the renderer to "iframe"</span></span>
+<span id="cb23-36"><a href="#cb23-36" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> plotly.io <span class="im">as</span> pio</span>
+<span id="cb23-37"><a href="#cb23-37" aria-hidden="true" tabindex="-1"></a>pio.renderers.default <span class="op">=</span> <span class="st">"iframe"</span></span>
+<span id="cb23-38"><a href="#cb23-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-39"><a href="#cb23-39" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a scatter plot using Plotly Express</span></span>
+<span id="cb23-40"><a href="#cb23-40" aria-hidden="true" tabindex="-1"></a>fig <span class="op">=</span> px.scatter_3d(embedding_df, x<span class="op">=</span><span class="st">'x0'</span>, y<span class="op">=</span><span class="st">'x1'</span>, z<span class="op">=</span><span class="st">'x2'</span>, hover_name<span class="op">=</span><span class="st">'word'</span>)</span>
+<span id="cb23-41"><a href="#cb23-41" aria-hidden="true" tabindex="-1"></a><span class="co"># Each point represents a word, positioned based on its 'x0', 'x1', and 'x2' coordinates</span></span>
+<span id="cb23-42"><a href="#cb23-42" aria-hidden="true" tabindex="-1"></a><span class="co"># Hovering over a point will show the corresponding word</span></span>
+<span id="cb23-43"><a href="#cb23-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-44"><a href="#cb23-44" aria-hidden="true" tabindex="-1"></a><span class="co"># Save the plot as an HTML file</span></span>
+<span id="cb23-45"><a href="#cb23-45" aria-hidden="true" tabindex="-1"></a>output_path <span class="op">=</span> <span class="st">"tsne_scatter_plot.html"</span></span>
+<span id="cb23-46"><a href="#cb23-46" aria-hidden="true" tabindex="-1"></a>fig.write_html(output_path)</span>
+<span id="cb23-47"><a href="#cb23-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-48"><a href="#cb23-48" aria-hidden="true" tabindex="-1"></a><span class="co"># Display the plot</span></span>
+<span id="cb23-49"><a href="#cb23-49" aria-hidden="true" tabindex="-1"></a>fig.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Top 5 words with highest embeddings:
-Word: video, Embedding: [ 6.0663528e+00 -2.3480777e-02 -1.8293615e-03]
-Word: factbox, Embedding: [-5.571019e+00  3.567055e-03  1.329361e-02]
-Word: trump’s, Embedding: [ 5.533627   -0.08201603  0.04996437]
-Word: –, Embedding: [ 5.2814813   0.01097411 -0.01051768]
-Word: gop, Embedding: [ 5.1912084   0.0837299  -0.03135618]</code></pre>
+Word: factbox, Embedding: [-24.08045    -4.1809125  -8.345942 ]
+Word: trumps, Embedding: [-23.764242   -4.005613   -8.2281065]
+Word: rohingya, Embedding: [-23.681908   -3.9603987  -8.194003 ]
+Word: macron, Embedding: [-23.37805    -3.8191924  -8.023712 ]
+Word: myanmar, Embedding: [-23.333593   -3.7990224  -7.9938197]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
-<iframe scrolling="no" width="100%" height="545px" src="iframe_figures/figure_12.html" frameborder="0" allowfullscreen=""></iframe>
+<iframe scrolling="no" width="100%" height="545px" src="iframe_figures/figure_27.html" frameborder="0" allowfullscreen=""></iframe>
 </div>
 </div>
-<div id="cell-40" class="cell" data-execution_count="13">
-<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> plotly.express <span class="im">as</span> px</span>
-<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.manifold <span class="im">import</span> TSNE</span>
-<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Reduce the dimensionality of embeddings using t-SNE</span></span>
-<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>tsne <span class="op">=</span> TSNE(n_components<span class="op">=</span><span class="dv">2</span>, random_state<span class="op">=</span><span class="dv">42</span>)</span>
-<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>embedding_tsne <span class="op">=</span> tsne.fit_transform(weights)</span>
-<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Create DataFrame for visualization</span></span>
-<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>embedding_df_tsne <span class="op">=</span> pd.DataFrame({</span>
-<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">'word'</span> : vocab, </span>
-<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a>    <span class="st">'x'</span>   : embedding_tsne[:, <span class="dv">0</span>],</span>
-<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a>    <span class="st">'y'</span>   : embedding_tsne[:, <span class="dv">1</span>]</span>
-<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a>})</span>
-<span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-15"><a href="#cb26-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Create scatter plot using Plotly for t-SNE embedding visualization</span></span>
-<span id="cb26-16"><a href="#cb26-16" aria-hidden="true" tabindex="-1"></a>fig_tsne <span class="op">=</span> px.scatter(embedding_df_tsne, </span>
-<span id="cb26-17"><a href="#cb26-17" aria-hidden="true" tabindex="-1"></a>                      x<span class="op">=</span><span class="st">'x'</span>, </span>
-<span id="cb26-18"><a href="#cb26-18" aria-hidden="true" tabindex="-1"></a>                      y<span class="op">=</span><span class="st">'y'</span>, </span>
-<span id="cb26-19"><a href="#cb26-19" aria-hidden="true" tabindex="-1"></a>                      hover_name<span class="op">=</span><span class="st">'word'</span>,</span>
-<span id="cb26-20"><a href="#cb26-20" aria-hidden="true" tabindex="-1"></a>                      title<span class="op">=</span><span class="st">'t-SNE Embedding Visualization'</span>)</span>
-<span id="cb26-21"><a href="#cb26-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-22"><a href="#cb26-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Print the top words with highest embeddings</span></span>
-<span id="cb26-23"><a href="#cb26-23" aria-hidden="true" tabindex="-1"></a>num_top_words <span class="op">=</span> <span class="dv">5</span></span>
-<span id="cb26-24"><a href="#cb26-24" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Top </span><span class="sc">{</span>num_top_words<span class="sc">}</span><span class="ss"> words with highest embeddings:"</span>)</span>
-<span id="cb26-25"><a href="#cb26-25" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> word <span class="kw">in</span> sorted_words[:num_top_words]:</span>
-<span id="cb26-26"><a href="#cb26-26" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"Word: </span><span class="sc">{</span>word<span class="sc">}</span><span class="ss">, Embedding: </span><span class="sc">{</span>embedding_dict[word]<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb26-27"><a href="#cb26-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-28"><a href="#cb26-28" aria-hidden="true" tabindex="-1"></a><span class="co"># Show the plot</span></span>
-<span id="cb26-29"><a href="#cb26-29" aria-hidden="true" tabindex="-1"></a>fig_tsne.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>Top 5 words with highest embeddings:
-Word: video, Embedding: [ 6.0663528e+00 -2.3480777e-02 -1.8293615e-03]
-Word: factbox, Embedding: [-5.571019e+00  3.567055e-03  1.329361e-02]
-Word: trump’s, Embedding: [ 5.533627   -0.08201603  0.04996437]
-Word: –, Embedding: [ 5.2814813   0.01097411 -0.01051768]
-Word: gop, Embedding: [ 5.1912084   0.0837299  -0.03135618]</code></pre>
-</div>
-<div class="cell-output cell-output-display">
-<iframe scrolling="no" width="100%" height="545px" src="iframe_figures/figure_13.html" frameborder="0" allowfullscreen=""></iframe>
-</div>
-</div>
+<p>t-SNE Embedding</p>
+<ol type="1">
+<li><p>“factbox”: This word has the highest embedding in the t-SNE plot, with coordinates [-24.08045, -4.1809125, -8.345942]. Its location suggests that it is relatively distinct from other words in the embedding space.</p></li>
+<li><p>“trumps”: The word “trumps” has the second-highest embedding, with coordinates [-23.764242, -4.005613, -8.2281065]. Its proximity to “factbox” indicates that these words may share some semantic similarities or appear in similar contexts.</p></li>
+<li><p>“rohingya”: The word “rohingya” has the third-highest embedding, with coordinates [-23.681908, -3.9603987, -8.194003]. Its location near “trumps” and “factbox” suggests that it is also semantically related to these words.</p></li>
+<li><p>“macron”: The word “macron” has the fourth-highest embedding, with coordinates [-23.37805, -3.8191924, -8.023712]. Its proximity to the previous words indicates that it may share some contextual similarities with them.</p></li>
+<li><p>“myanmar”: The word “myanmar” has the fifth-highest embedding, with coordinates [-23.333593, -3.7990224, -7.9938197]. Its location close to the other top words suggests that it is semantically related to them.</p></li>
+</ol>
+</section>
+<section id="conclusion" class="level3">
+<h3 class="anchored" data-anchor-id="conclusion">Conclusion:</h3>
+<p>Now we finish the presenting of the learned word embedding and we show the written text discusses at least 5 words whose location is interpretable within the embedding. Thank you for your time.</p>
 
 
 </section>
