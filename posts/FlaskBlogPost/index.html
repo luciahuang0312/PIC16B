@@ -1,0 +1,1075 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.4.545">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>PIC16B - Part 3: Flask Web App Development for Option Intrinsic Value Prediction</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed fullcontent">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top quarto-banner">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">PIC16B</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://twitter.com"> <i class="bi bi-twitter" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+          <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<header id="title-block-header" class="quarto-title-block default page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-body">
+      <h1 class="title">Part 3: Flask Web App Development for Option Intrinsic Value Prediction</h1>
+                      </div>
+  </div>
+    
+  
+  <div class="quarto-title-meta">
+
+      
+    
+      
+    </div>
+    
+  
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    
+<!-- main -->
+<main class="content quarto-banner-title-block" id="quarto-document-content">
+
+
+
+
+
+<section id="part-3-flask-web-app-development-for-option-intrinsic-value-prediction" class="level1">
+<h1>Part 3: Flask Web App Development for Option Intrinsic Value Prediction</h1>
+<p>After completing data preprocessing and constructing a one-dimensional Convolutional Neural Network (CNN), we have successfully enabled the prediction of call and put options’ intrinsic values. The subsequent step involves operationalizing this model: we will explore how to integrate it into a web application, thus allowing users to make predictions and view results. This transition marks our shift from theoretical analysis to practical application, demonstrating the real-world utility of our intellectual efforts.</p>
+<section id="web-app-implementation-outline" class="level2">
+<h2 class="anchored" data-anchor-id="web-app-implementation-outline">3.0 Web App Implementation Outline</h2>
+<p>The implementation strategy for our Flask web application development can be encapsulated as follows:</p>
+<ol type="1">
+<li><p><strong>Web Application Framework Construction</strong>: Utilize the Flask framework to build a web application that processes user-uploaded financial data and displays prediction outcomes.</p></li>
+<li><p><strong>Model Preparation</strong>: Define a Convolutional Neural Network (CNN) specifically designed for financial data prediction. This model includes multiple convolutional layers, batch normalization layers, and residual connections to boost performance and training efficiency—a milestone already achieved by our team.</p></li>
+<li><p><strong>Model Loading and Data Preprocessing</strong>: Load the pre-trained model (<code>best_model_ultimatel.pth</code>) and perform data preprocessing. This step involves reading data from an uploaded CSV file and applying the preprocess_data function to execute feature scaling, data splitting, and other preparatory operations, mirroring the CNN model setup.</p></li>
+<li><p><strong>Model Training and Prediction</strong>: Employ the PyTorch library to load the pre-trained model and input the preprocessed data for prediction.</p></li>
+<li><p><strong>Results Presentation</strong>: Exhibit the model’s performance metrics on the test dataset, such as Mean Squared Error (MSE), Root Mean Squared Error (RMSE), and R-squared score, along with the prediction outcomes. These are visualized using <code>Plotly</code> charts, providing a comprehensive view to the users.</p></li>
+</ol>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="index_files/figure-html/cell-4-1-flask1.png" class="img-fluid figure-img"></p>
+<figcaption>flask1.png</figcaption>
+</figure>
+</div>
+<ul>
+<li><p><code>app.py</code>: Central to the application, this file contains key functions like <code>Convolution1D</code>, <code>preprocess_data</code>, <code>Index</code>, <code>show_prediction</code>, <code>get_table_info</code>, <code>view_uploaded_database</code>, and <code>view_database</code>, which are integral to the app’s operation.</p></li>
+<li><p><code>Templates</code> folder: This directory holds all the HTML files needed for the app’s user interface, enabling interactions and data display. It includes <code>index.html</code>, <code>plot.html</code>, <code>view_uploaded_data.html</code>, <code>show_prediction.html</code>, <code>Test_Set_Predictions.html</code>, and <code>view_data.html</code>.</p></li>
+<li><p><code>Data</code> folder: Contains sample CSV files, <code>df_2023_h1_feature.csv</code> and <code>df_2023_h1_target.csv</code>, used for data upload and result demonstration in the app.</p></li>
+<li><p><code>Model</code> folder: Houses the pre-trained model file essential for making data predictions.</p></li>
+<li><p><code>__pycache__</code> folder: A system-generated directory that caches bytecode, enhancing the program’s execution speed.</p></li>
+<li><p><code>Static</code> folder: Stores static files, crucial for the app’s styling and interactive features.</p></li>
+</ul>
+<p>This organizational structure ensures that each aspect of our Flask web application is well-arranged and easily accessible, supporting efficient development and maintenance.</p>
+</section>
+<section id="overview-and-impact-analysis-of-functions-in-app.py" class="level2">
+<h2 class="anchored" data-anchor-id="overview-and-impact-analysis-of-functions-in-app.py">3.1 Overview and Impact Analysis of Functions in app.py</h2>
+<p>In the <code>app.py</code> file, several key functionalities are pivotal to the web application’s operation, specifically tailored for financial data analysis and option pricing evaluation. These include:</p>
+<ol type="1">
+<li><strong>Upload and Preprocess Financial Data</strong>: This functionality allows users to upload their financial datasets and applies preprocessing techniques to prepare the data for analysis.</li>
+<li><strong>View Uploaded CSV Files</strong>: Users can view the list of uploaded CSV files, providing an overview of the data available for processing.</li>
+<li><strong>View Details of the Uploaded CSV Files</strong>: This feature enables users to delve into the specifics of each uploaded CSV file, examining the data more closely.</li>
+<li><strong>Evaluate Option Pricing and Display Evaluation Results</strong>: The application assesses the pricing of options based on the uploaded data and displays the results, offering valuable insights into option valuation.</li>
+</ol>
+<p>The <code>app.py</code> file incorporates essential libraries and modules to facilitate web development, data processing, machine learning, and visualization:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> flask <span class="im">import</span> Flask, render_template, url_for, request, flash, redirect</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> werkzeug.utils <span class="im">import</span> secure_filename</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torch <span class="im">import</span> nn</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch.nn.functional <span class="im">as</span> F</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> flask <span class="im">import</span> jsonify</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sqlite3</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> math</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.preprocessing <span class="im">import</span> StandardScaler</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> plotly.graph_objects <span class="im">as</span> go</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<section id="convolution1d-class" class="level3">
+<h3 class="anchored" data-anchor-id="convolution1d-class">Convolution1D Class</h3>
+<p>The Convolution1D class within our application is a custom neural network module extending nn.Module from PyTorch, designed for one-dimensional convolutional operations. This class embodies a series of convolutional, batch normalization, and fully connected layers, structured to facilitate complex pattern recognition in financial data. Notably, this implementation includes residual connections and dropout for robustness and generalization.</p>
+<p>Note: Building on the foundational work previously established by our team members, this segment is presented without extensive analysis to minimize redundancy.</p>
+</section>
+<section id="torch.load" class="level3">
+<h3 class="anchored" data-anchor-id="torch.load">Torch.load</h3>
+<p>In this section of the code, we address the computational efficiency and resource optimization for running our neural network model. The code snippet demonstrates the dynamic allocation of processing units, preferring GPU over CPU for faster computation, which is crucial for handling complex models like <code>Convolution1D</code>. We then load the model’s state dictionary from the file ‘best_model_ultimate.pt’. The <code>map_location</code> argument ensures that the loaded state dict is moved to the appropriate device. This step initializes the model with previously trained parameters, allowing for further training,evaluation, or inference without retraining from scratch. Here’s a detailed look at the operations:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Check for available GPU, otherwise use CPU</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>device <span class="op">=</span> torch.device(<span class="st">'cuda'</span> <span class="cf">if</span> torch.cuda.is_available() <span class="cf">else</span> <span class="st">'cpu'</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Initialize the Convolution1D model and transfer it to the chosen device</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>model_loaded <span class="op">=</span> Convolution1D().to(device)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Load the previously trained model state</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>model_loaded.load_state_dict(torch.load(<span class="st">'model/best_model_new.pt'</span>, map_location<span class="op">=</span>device))</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Set the model to evaluation mode</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>model_loaded.<span class="bu">eval</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="preprocess_data" class="level3">
+<h3 class="anchored" data-anchor-id="preprocess_data">Preprocess_data</h3>
+<p>The <code>preprocess_data</code> function tasked with preparing the financial data for subsequent analysis. It performs several key steps:</p>
+<ul>
+<li><strong>Data Loading</strong>: Reads the financial datasets from the specified CSV files.</li>
+<li><strong>Normalization</strong>: Applies <code>StandardScaler</code> to normalize specific columns, ensuring uniform data scaling.</li>
+<li><strong>Data Merging</strong>: Combines the feature and target data into a single DataFrame for comprehensive analysis.</li>
+<li><strong>Data Splitting</strong>: Segregates the dataset into training, validation, and test sets, facilitating a structured approach to model training and evaluation.</li>
+</ul>
+<p>Given that these processes align with our prior data handling endeavors, we will highlight only the main actions and points, avoiding detailed analysis to prevent redundancy.</p>
+</section>
+<section id="index" class="level3">
+<h3 class="anchored" data-anchor-id="index">Index()</h3>
+<p>The <code>index</code> function in <code>app.py</code> serves as the main entry point for our Flask web application. It handles both GET and POST requests, managing file uploads, data preprocessing, model evaluation, and rendering the results. This function aligns with our previous work, emphasizing efficient data processing and model integration. Key points include handling file uploads, data preprocessing, model prediction, error calculation, and result visualization. Below is the detailed code:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="at">@app.route</span>(<span class="st">'/'</span>, methods<span class="op">=</span>[<span class="st">'GET'</span>, <span class="st">'POST'</span>])</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> index():</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co">    This function serves as the endpoint for the root URL ('/'). It handles both GET and POST requests,</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co">    rendering the index page of the web application. During a POST request, it processes uploaded files</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="co">    for option pricing evaluation, performs predictions, and returns the results along with rendering</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="co">    the HTML template.</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="co">    Returns:</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="co">        render_template: Renders the HTML template based on the request method and the operations performed.</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Check if the request method is POST, which indicates that data has been submitted to the server</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> request.method <span class="op">==</span> <span class="st">'POST'</span>:</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Check if both files are present in the request</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="st">'file1'</span> <span class="kw">not</span> <span class="kw">in</span> request.files <span class="kw">or</span> <span class="st">'file2'</span> <span class="kw">not</span> <span class="kw">in</span> request.files:</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>            <span class="co"># If either file is missing, flash a message to the user and reload the page</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>            flash(<span class="st">'No file part'</span>)</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> redirect(request.url)</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>        file1 <span class="op">=</span> request.files[<span class="st">'file1'</span>]</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>        file2 <span class="op">=</span> request.files[<span class="st">'file2'</span>]</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Check if file names are not empty, meaning that the user has selected files</span></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> file1.filename <span class="op">==</span> <span class="st">''</span> <span class="kw">or</span> file2.filename <span class="op">==</span> <span class="st">''</span>:</span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>            <span class="co"># If no file is selected, flash a message and reload the page</span></span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>            flash(<span class="st">'No selected file'</span>)</span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> redirect(request.url)</span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Check if both files exist and proceed with processing</span></span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> file1 <span class="kw">and</span> file2:</span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Secure the file names and prepare the file paths</span></span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>            filename1 <span class="op">=</span> secure_filename(file1.filename)</span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>            filename2 <span class="op">=</span> secure_filename(file2.filename)</span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>            file1_path <span class="op">=</span> os.path.join(app.config[<span class="st">'UPLOAD_FOLDER'</span>], filename1)</span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>            file2_path <span class="op">=</span> os.path.join(app.config[<span class="st">'UPLOAD_FOLDER'</span>], filename2)</span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Save the files to the server</span></span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>            file1.save(file1_path)</span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>            file2.save(file2_path)</span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Notify the user that files have been uploaded successfully</span></span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>            flash(<span class="st">'Files successfully uploaded'</span>)</span>
+<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Preprocess the data from the uploaded files</span></span>
+<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a>            X_train, X_val, X_test, y_train, y_val, y_test <span class="op">=</span> preprocess_data(file1_path, file2_path)</span>
+<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Evaluate the model on the uploaded data</span></span>
+<span id="cb3-45"><a href="#cb3-45" aria-hidden="true" tabindex="-1"></a>            criterion <span class="op">=</span> nn.MSELoss()  <span class="co"># Mean Squared Error Loss function</span></span>
+<span id="cb3-46"><a href="#cb3-46" aria-hidden="true" tabindex="-1"></a>            <span class="cf">with</span> torch.no_grad():  <span class="co"># No gradient computation for evaluation to save memory and computations</span></span>
+<span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a>                output <span class="op">=</span> model_loaded(X_test.to(device)).squeeze(<span class="op">-</span><span class="dv">1</span>)  <span class="co"># Model prediction</span></span>
+<span id="cb3-48"><a href="#cb3-48" aria-hidden="true" tabindex="-1"></a>                predictions <span class="op">=</span> output</span>
+<span id="cb3-49"><a href="#cb3-49" aria-hidden="true" tabindex="-1"></a>                test_loss <span class="op">=</span> criterion(predictions, y_test.to(device))  <span class="co"># Calculate the test loss</span></span>
+<span id="cb3-50"><a href="#cb3-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-51"><a href="#cb3-51" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Compute the Root Mean Square Error (RMSE) for the test data</span></span>
+<span id="cb3-52"><a href="#cb3-52" aria-hidden="true" tabindex="-1"></a>            mse_loss <span class="op">=</span> criterion(predictions, y_test)</span>
+<span id="cb3-53"><a href="#cb3-53" aria-hidden="true" tabindex="-1"></a>            rmse_loss <span class="op">=</span> mse_loss.item() <span class="op">**</span> (<span class="fl">0.5</span>)</span>
+<span id="cb3-54"><a href="#cb3-54" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb3-55"><a href="#cb3-55" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Compute the R-squared (R2) score to measure the goodness of fit</span></span>
+<span id="cb3-56"><a href="#cb3-56" aria-hidden="true" tabindex="-1"></a>            <span class="im">from</span> sklearn.metrics <span class="im">import</span> r2_score</span>
+<span id="cb3-57"><a href="#cb3-57" aria-hidden="true" tabindex="-1"></a>            r2 <span class="op">=</span> r2_score(y_test, predictions)</span>
+<span id="cb3-58"><a href="#cb3-58" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb3-59"><a href="#cb3-59" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Create a plot of the predictions against the true values</span></span>
+<span id="cb3-60"><a href="#cb3-60" aria-hidden="true" tabindex="-1"></a>            fig <span class="op">=</span> go.Figure()</span>
+<span id="cb3-61"><a href="#cb3-61" aria-hidden="true" tabindex="-1"></a>            fig.add_trace(go.Scatter(x<span class="op">=</span>np.arange(<span class="bu">len</span>(output)), y<span class="op">=</span>output.squeeze().numpy(), mode<span class="op">=</span><span class="st">'lines'</span>, name<span class="op">=</span><span class="st">'Predicted'</span>, line<span class="op">=</span><span class="bu">dict</span>(color<span class="op">=</span><span class="st">'red'</span>)))</span>
+<span id="cb3-62"><a href="#cb3-62" aria-hidden="true" tabindex="-1"></a>            fig.add_trace(go.Scatter(x<span class="op">=</span>np.arange(<span class="bu">len</span>(y_test)), y<span class="op">=</span>y_test.numpy(), mode<span class="op">=</span><span class="st">'lines'</span>, name<span class="op">=</span><span class="st">'True'</span>, line<span class="op">=</span><span class="bu">dict</span>(color<span class="op">=</span><span class="st">'blue'</span>)))</span>
+<span id="cb3-63"><a href="#cb3-63" aria-hidden="true" tabindex="-1"></a>            fig.update_layout(title<span class="op">=</span><span class="st">'Test Set Predictions'</span>, xaxis_title<span class="op">=</span><span class="st">'Index'</span>, yaxis_title<span class="op">=</span><span class="st">'Value'</span>)</span>
+<span id="cb3-64"><a href="#cb3-64" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb3-65"><a href="#cb3-65" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Save the plot output to a file</span></span>
+<span id="cb3-66"><a href="#cb3-66" aria-hidden="true" tabindex="-1"></a>            plot_output_path <span class="op">=</span> os.path.join(<span class="st">'static'</span>, <span class="st">'Test_Set_Predictions.html'</span>)</span>
+<span id="cb3-67"><a href="#cb3-67" aria-hidden="true" tabindex="-1"></a>            fig.write_html(plot_output_path)</span>
+<span id="cb3-68"><a href="#cb3-68" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb3-69"><a href="#cb3-69" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Render the index HTML template with the results and plot path</span></span>
+<span id="cb3-70"><a href="#cb3-70" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> render_template(<span class="st">'index.html'</span>, test_loss<span class="op">=</span>test_loss.item(), mse_loss<span class="op">=</span>mse_loss.item(),</span>
+<span id="cb3-71"><a href="#cb3-71" aria-hidden="true" tabindex="-1"></a>                                   rmse_loss<span class="op">=</span>rmse_loss, r2_score<span class="op">=</span>r2, plot<span class="op">=</span>plot_output_path)</span>
+<span id="cb3-72"><a href="#cb3-72" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-73"><a href="#cb3-73" aria-hidden="true" tabindex="-1"></a>    <span class="co"># If the request method is GET, render the index HTML template without any prediction or plot</span></span>
+<span id="cb3-74"><a href="#cb3-74" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> render_template(<span class="st">'index.html'</span>, prediction<span class="op">=</span><span class="va">None</span>, plot<span class="op">=</span><span class="va">None</span>)</span>
+<span id="cb3-75"><a href="#cb3-75" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-76"><a href="#cb3-76" aria-hidden="true" tabindex="-1"></a>In summary, the index function <span class="kw">is</span> integral to the Flask application. It <span class="kw">is</span> pivotal <span class="cf">for</span> deploying predictive models effectively, ensuring that the application <span class="kw">not</span> only performs its intended analytical tasks but also provides a user<span class="op">-</span>friendly interface <span class="cf">for</span> interaction <span class="kw">and</span> result interpretation. </span>
+<span id="cb3-77"><a href="#cb3-77" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-78"><a href="#cb3-78" aria-hidden="true" tabindex="-1"></a><span class="co">### show_prediction</span></span>
+<span id="cb3-79"><a href="#cb3-79" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-80"><a href="#cb3-80" aria-hidden="true" tabindex="-1"></a>The `show_prediction` function <span class="kw">in</span> `app.py` <span class="kw">is</span> designed to handle GET requests specifically <span class="cf">for</span> displaying the prediction results on a separate page. This functionality <span class="kw">is</span> crucial <span class="cf">for</span> providing users <span class="cf">with</span> access to the outcome of their data analysis, ensuring a clear <span class="kw">and</span> dedicated view of the predictive results.</span>
+<span id="cb3-81"><a href="#cb3-81" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-82"><a href="#cb3-82" aria-hidden="true" tabindex="-1"></a>Here<span class="st">'s a detailed analysis of the function:</span></span>
+<span id="cb3-83"><a href="#cb3-83" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-84"><a href="#cb3-84" aria-hidden="true" tabindex="-1"></a><span class="er">- **Path Definition**: Initially, the function defines the path to the prediction results file, typically stored in the `static` directory. This standardization of file location facilitates consistent access and retrieval of the results.</span></span>
+<span id="cb3-85"><a href="#cb3-85" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-86"><a href="#cb3-86" aria-hidden="true" tabindex="-1"></a><span class="op">-</span> <span class="op">**</span>Existence Check<span class="op">**</span>: The function then checks <span class="cf">if</span> the prediction results <span class="bu">file</span> exists at the specified path. This check <span class="kw">is</span> essential to prevent errors that would occur <span class="cf">if</span> the application attempted to display a non<span class="op">-</span>existent <span class="bu">file</span>.</span>
+<span id="cb3-87"><a href="#cb3-87" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-88"><a href="#cb3-88" aria-hidden="true" tabindex="-1"></a><span class="op">-</span> <span class="op">**</span>Conditional Rendering<span class="op">**</span>: If the <span class="bu">file</span> exists, the function proceeds to render an HTML template (`Test_Set_Predictions.html`) specifically designed to display the prediction results. This template <span class="kw">is</span> passed the path of the prediction plot <span class="bu">file</span>, ensuring that the correct data <span class="kw">is</span> displayed.</span>
+<span id="cb3-89"><a href="#cb3-89" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-90"><a href="#cb3-90" aria-hidden="true" tabindex="-1"></a><span class="op">-</span> <span class="op">**</span>Redirection<span class="op">**</span>: In cases where the prediction results <span class="bu">file</span> does <span class="kw">not</span> exist, the function redirects the user to the index page. This redirection mechanism prevents user confusion <span class="kw">and</span> ensures a smooth user experience by guiding them back to the starting point of the application.</span>
+<span id="cb3-91"><a href="#cb3-91" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-92"><a href="#cb3-92" aria-hidden="true" tabindex="-1"></a>Here <span class="kw">is</span> the complete code snippet:</span>
+<span id="cb3-93"><a href="#cb3-93" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-94"><a href="#cb3-94" aria-hidden="true" tabindex="-1"></a>```python</span>
+<span id="cb3-95"><a href="#cb3-95" aria-hidden="true" tabindex="-1"></a><span class="at">@app.route</span>(<span class="st">'/show_prediction'</span>, methods<span class="op">=</span>[<span class="st">'GET'</span>])</span>
+<span id="cb3-96"><a href="#cb3-96" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> show_prediction():</span>
+<span id="cb3-97"><a href="#cb3-97" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-98"><a href="#cb3-98" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Define the path to the prediction results file, assumed to be in the 'static' directory</span></span>
+<span id="cb3-99"><a href="#cb3-99" aria-hidden="true" tabindex="-1"></a>    plot_output_path <span class="op">=</span> os.path.join(<span class="st">'static'</span>, <span class="st">'Test_Set_Predictions.html'</span>)</span>
+<span id="cb3-100"><a href="#cb3-100" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-101"><a href="#cb3-101" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Check if the prediction results file exists</span></span>
+<span id="cb3-102"><a href="#cb3-102" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="kw">not</span> os.path.exists(plot_output_path):</span>
+<span id="cb3-103"><a href="#cb3-103" aria-hidden="true" tabindex="-1"></a>        <span class="co"># If the file does not exist, redirect the user to the index page</span></span>
+<span id="cb3-104"><a href="#cb3-104" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> redirect(url_for(<span class="st">'index'</span>))</span>
+<span id="cb3-105"><a href="#cb3-105" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-106"><a href="#cb3-106" aria-hidden="true" tabindex="-1"></a>    <span class="co"># If the file exists, render the template to display the prediction results,</span></span>
+<span id="cb3-107"><a href="#cb3-107" aria-hidden="true" tabindex="-1"></a>    <span class="co"># passing the path of the prediction plot file to the template</span></span>
+<span id="cb3-108"><a href="#cb3-108" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> render_template(<span class="st">'Test_Set_Predictions.html'</span>, plot_output_path<span class="op">=</span>plot_output_path)</span>
+<span id="cb3-109"><a href="#cb3-109" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-110"><a href="#cb3-110" aria-hidden="true" tabindex="-1"></a><span class="co">### get_table_info</span></span>
+<span id="cb3-111"><a href="#cb3-111" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-112"><a href="#cb3-112" aria-hidden="true" tabindex="-1"></a>The `get_table_info` function <span class="kw">is</span> designed to streamline the process of extracting filenames <span class="im">from</span> full <span class="bu">file</span> paths, which <span class="kw">is</span> a common requirement <span class="kw">in</span> web applications handling <span class="bu">file</span> uploads. By utilizing `os.path.basename`, it efficiently strips the directory path, leaving only the <span class="bu">file</span> name. This functionality <span class="kw">is</span> particularly useful <span class="kw">in</span> scenarios where the display <span class="kw">or</span> processing of filenames, independent of their storage paths, <span class="kw">is</span> required. Here<span class="st">'s how the function operates:</span></span>
+<span id="cb3-113"><a href="#cb3-113" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-114"><a href="#cb3-114" aria-hidden="true" tabindex="-1"></a><span class="er">```python</span></span>
+<span id="cb3-115"><a href="#cb3-115" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_table_info(file1_path, file2_path):</span>
+<span id="cb3-116"><a href="#cb3-116" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> [os.path.basename(file1_path), os.path.basename(file2_path)]</span>
+<span id="cb3-117"><a href="#cb3-117" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-118"><a href="#cb3-118" aria-hidden="true" tabindex="-1"></a><span class="co">### view_uploaded_data</span></span>
+<span id="cb3-119"><a href="#cb3-119" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-120"><a href="#cb3-120" aria-hidden="true" tabindex="-1"></a>The `view_uploaded_data` function <span class="kw">in</span> the Flask web application serves to showcase the files that have been uploaded by users. This endpoint, accessible via a GET request, retrieves <span class="kw">and</span> displays the contents of the upload directory <span class="kw">in</span> the application<span class="st">'s user interface. Here'</span>s an <span class="kw">in</span><span class="op">-</span>depth look at the function <span class="kw">and</span> its code:</span>
+<span id="cb3-121"><a href="#cb3-121" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-122"><a href="#cb3-122" aria-hidden="true" tabindex="-1"></a>```python</span>
+<span id="cb3-123"><a href="#cb3-123" aria-hidden="true" tabindex="-1"></a><span class="at">@app.route</span>(<span class="st">'/view_uploaded_data'</span>, methods<span class="op">=</span>[<span class="st">'GET'</span>])</span>
+<span id="cb3-124"><a href="#cb3-124" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> view_uploaded_data():</span>
+<span id="cb3-125"><a href="#cb3-125" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
+<span id="cb3-126"><a href="#cb3-126" aria-hidden="true" tabindex="-1"></a><span class="co">    Handles the GET request to display the uploaded database files.</span></span>
+<span id="cb3-127"><a href="#cb3-127" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-128"><a href="#cb3-128" aria-hidden="true" tabindex="-1"></a><span class="co">    This endpoint fetches the list of files present in the upload directory and displays them</span></span>
+<span id="cb3-129"><a href="#cb3-129" aria-hidden="true" tabindex="-1"></a><span class="co">    on the 'view_uploaded_data.html' page. This allows users to see which files have been</span></span>
+<span id="cb3-130"><a href="#cb3-130" aria-hidden="true" tabindex="-1"></a><span class="co">    uploaded to the application.</span></span>
+<span id="cb3-131"><a href="#cb3-131" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-132"><a href="#cb3-132" aria-hidden="true" tabindex="-1"></a><span class="co">    The function retrieves the filenames from the specified upload folder set in the app's configuration</span></span>
+<span id="cb3-133"><a href="#cb3-133" aria-hidden="true" tabindex="-1"></a><span class="co">    and passes these filenames to the rendering template.</span></span>
+<span id="cb3-134"><a href="#cb3-134" aria-hidden="true" tabindex="-1"></a><span class="co">    </span></span>
+<span id="cb3-135"><a href="#cb3-135" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb3-136"><a href="#cb3-136" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-137"><a href="#cb3-137" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Retrieve the list of files in the upload directory</span></span>
+<span id="cb3-138"><a href="#cb3-138" aria-hidden="true" tabindex="-1"></a>    files <span class="op">=</span> os.listdir(app.config[<span class="st">'UPLOAD_FOLDER'</span>])</span>
+<span id="cb3-139"><a href="#cb3-139" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-140"><a href="#cb3-140" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Render the HTML template, passing the list of files for display on the webpage</span></span>
+<span id="cb3-141"><a href="#cb3-141" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> render_template(<span class="st">'view_uploaded_data.html'</span>, files<span class="op">=</span>files)</span>
+<span id="cb3-142"><a href="#cb3-142" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-143"><a href="#cb3-143" aria-hidden="true" tabindex="-1"></a><span class="co">### view_data</span></span>
+<span id="cb3-144"><a href="#cb3-144" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-145"><a href="#cb3-145" aria-hidden="true" tabindex="-1"></a>The `view_data` endpoint <span class="kw">in</span> the Flask application <span class="kw">is</span> designed to showcase the details of the uploaded CSV files through a GET request. It facilitates the inspection of the contents of these files, enhancing the user<span class="st">'s ability to interact with and analyze the uploaded data. The function operates by expecting `filename1` and `filename2` as query parameters, utilizing these to locate and display the respective files'</span> contents. Here<span class="st">'s a closer look at the function and its operations:</span></span>
+<span id="cb3-146"><a href="#cb3-146" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-147"><a href="#cb3-147" aria-hidden="true" tabindex="-1"></a><span class="er">```python</span></span>
+<span id="cb3-148"><a href="#cb3-148" aria-hidden="true" tabindex="-1"></a><span class="at">@app.route</span>(<span class="st">'/view_data'</span>, methods<span class="op">=</span>[<span class="st">'GET'</span>])</span>
+<span id="cb3-149"><a href="#cb3-149" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> view_data():</span>
+<span id="cb3-150"><a href="#cb3-150" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
+<span id="cb3-151"><a href="#cb3-151" aria-hidden="true" tabindex="-1"></a><span class="co">    The function checks for the existence of the specified files in the upload directory.</span></span>
+<span id="cb3-152"><a href="#cb3-152" aria-hidden="true" tabindex="-1"></a><span class="co">    If both files exist, it reads them as CSVs and prepares the data for viewing. If either</span></span>
+<span id="cb3-153"><a href="#cb3-153" aria-hidden="true" tabindex="-1"></a><span class="co">    file is missing or an error occurs during file reading, the user is redirected to the</span></span>
+<span id="cb3-154"><a href="#cb3-154" aria-hidden="true" tabindex="-1"></a><span class="co">    file upload view with an appropriate error message.</span></span>
+<span id="cb3-155"><a href="#cb3-155" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb3-156"><a href="#cb3-156" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Retrieve filenames from the request's query parameters</span></span>
+<span id="cb3-157"><a href="#cb3-157" aria-hidden="true" tabindex="-1"></a>    filename1 <span class="op">=</span> request.args.get(<span class="st">'filename1'</span>)</span>
+<span id="cb3-158"><a href="#cb3-158" aria-hidden="true" tabindex="-1"></a>    filename2 <span class="op">=</span> request.args.get(<span class="st">'filename2'</span>)</span>
+<span id="cb3-159"><a href="#cb3-159" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-160"><a href="#cb3-160" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Validate that both filenames are provided</span></span>
+<span id="cb3-161"><a href="#cb3-161" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="kw">not</span> filename1 <span class="kw">or</span> <span class="kw">not</span> filename2:</span>
+<span id="cb3-162"><a href="#cb3-162" aria-hidden="true" tabindex="-1"></a>        flash(<span class="st">'No data file selected.'</span>)</span>
+<span id="cb3-163"><a href="#cb3-163" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> redirect(url_for(<span class="st">'view_uploaded_data'</span>))</span>
+<span id="cb3-164"><a href="#cb3-164" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-165"><a href="#cb3-165" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Construct full file paths</span></span>
+<span id="cb3-166"><a href="#cb3-166" aria-hidden="true" tabindex="-1"></a>    file1_path <span class="op">=</span> os.path.join(app.config[<span class="st">'UPLOAD_FOLDER'</span>], filename1)</span>
+<span id="cb3-167"><a href="#cb3-167" aria-hidden="true" tabindex="-1"></a>    file2_path <span class="op">=</span> os.path.join(app.config[<span class="st">'UPLOAD_FOLDER'</span>], filename2)</span>
+<span id="cb3-168"><a href="#cb3-168" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-169"><a href="#cb3-169" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Check if both files exist in the specified upload folder</span></span>
+<span id="cb3-170"><a href="#cb3-170" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="kw">not</span> os.path.exists(file1_path) <span class="kw">or</span> <span class="kw">not</span> os.path.exists(file2_path):</span>
+<span id="cb3-171"><a href="#cb3-171" aria-hidden="true" tabindex="-1"></a>        flash(<span class="st">'Data file not found.'</span>)</span>
+<span id="cb3-172"><a href="#cb3-172" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> redirect(url_for(<span class="st">'view_uploaded_data'</span>))</span>
+<span id="cb3-173"><a href="#cb3-173" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-174"><a href="#cb3-174" aria-hidden="true" tabindex="-1"></a>    <span class="cf">try</span>:</span>
+<span id="cb3-175"><a href="#cb3-175" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Attempt to read the files as CSVs and store their contents</span></span>
+<span id="cb3-176"><a href="#cb3-176" aria-hidden="true" tabindex="-1"></a>        ds <span class="op">=</span> pd.read_csv(file1_path)</span>
+<span id="cb3-177"><a href="#cb3-177" aria-hidden="true" tabindex="-1"></a>        target <span class="op">=</span> pd.read_csv(file2_path)</span>
+<span id="cb3-178"><a href="#cb3-178" aria-hidden="true" tabindex="-1"></a>        table_data <span class="op">=</span> {<span class="st">'Dataset 1'</span>: ds, <span class="st">'Dataset 2'</span>: target}</span>
+<span id="cb3-179"><a href="#cb3-179" aria-hidden="true" tabindex="-1"></a>    <span class="cf">except</span> <span class="pp">Exception</span> <span class="im">as</span> e:</span>
+<span id="cb3-180"><a href="#cb3-180" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Handle any error that occurs during file reading and flash an error message</span></span>
+<span id="cb3-181"><a href="#cb3-181" aria-hidden="true" tabindex="-1"></a>        flash(<span class="ss">f'Error accessing CSV files: </span><span class="sc">{</span>e<span class="sc">}</span><span class="ss">'</span>)</span>
+<span id="cb3-182"><a href="#cb3-182" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> redirect(url_for(<span class="st">'view_uploaded_data'</span>))</span>
+<span id="cb3-183"><a href="#cb3-183" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Render the view template with the loaded table data and filenames</span></span>
+<span id="cb3-184"><a href="#cb3-184" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> render_template(<span class="st">'view_data.html'</span>, tables<span class="op">=</span>table_data, filename1<span class="op">=</span>filename1, filename2<span class="op">=</span>filename2)</span>
+<span id="cb3-185"><a href="#cb3-185" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-186"><a href="#cb3-186" aria-hidden="true" tabindex="-1"></a>The concluding part of our Flask application<span class="st">'s code features the standard Python idiom to check if the script is executed as the main program and not imported as a module. This check is crucial for initiating the Flask server only when the script is run directly, ensuring that the application'</span>s startup process <span class="kw">is</span> controlled <span class="kw">and</span> deliberate. The `app.run(debug<span class="op">=</span><span class="va">True</span>)` line activates the Flask application server <span class="cf">with</span> debug mode enabled, which <span class="kw">is</span> beneficial during development <span class="cf">for</span> its detailed error feedback <span class="kw">and</span> live reloading capabilities. Here<span class="st">'s the segment:</span></span>
+<span id="cb3-187"><a href="#cb3-187" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-188"><a href="#cb3-188" aria-hidden="true" tabindex="-1"></a><span class="er">```python</span></span>
+<span id="cb3-189"><a href="#cb3-189" aria-hidden="true" tabindex="-1"></a><span class="co"># This conditional statement checks if the script is run as the main program.</span></span>
+<span id="cb3-190"><a href="#cb3-190" aria-hidden="true" tabindex="-1"></a><span class="co"># Ensure that code is only executed when the script is run directly, and not when imported as a module.</span></span>
+<span id="cb3-191"><a href="#cb3-191" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="va">__name__</span> <span class="op">==</span> <span class="st">'__main__'</span>:</span>
+<span id="cb3-192"><a href="#cb3-192" aria-hidden="true" tabindex="-1"></a>    <span class="co"># The app.run(debug=True) command starts the Flask application server.</span></span>
+<span id="cb3-193"><a href="#cb3-193" aria-hidden="true" tabindex="-1"></a>    <span class="co"># The debug=True argument enables debug mode, which provides useful feedback in the browser for development,</span></span>
+<span id="cb3-194"><a href="#cb3-194" aria-hidden="true" tabindex="-1"></a>    <span class="co"># including detailed tracebacks and live reloading on code changes.</span></span>
+<span id="cb3-195"><a href="#cb3-195" aria-hidden="true" tabindex="-1"></a>    app.run(debug<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb3-196"><a href="#cb3-196" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-197"><a href="#cb3-197" aria-hidden="true" tabindex="-1"></a><span class="co">## 3.2 Evaluative Overview of HTML Templates: Implications for User Interface and Experience</span></span>
+<span id="cb3-198"><a href="#cb3-198" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-199"><a href="#cb3-199" aria-hidden="true" tabindex="-1"></a><span class="op">!</span>[flask2.png](index_files<span class="op">/</span>figure<span class="op">-</span>html<span class="op">/</span>cell<span class="op">-</span><span class="dv">26</span><span class="op">-</span><span class="dv">1</span><span class="op">-</span>flask2.png)</span>
+<span id="cb3-200"><a href="#cb3-200" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-201"><a href="#cb3-201" aria-hidden="true" tabindex="-1"></a>Our web application uses a <span class="bu">set</span> of HTML templates, each carefully crafted to improve how users interact <span class="cf">with</span> <span class="kw">and</span> see data. These templates are essential to the app<span class="st">'s design, blending good looks with practical use. They guide users from the start of entering data to the end of seeing the results. </span></span>
+<span id="cb3-202"><a href="#cb3-202" aria-hidden="true" tabindex="-1"></a><span class="er">- `index.html`: Serves as the primary gateway to the web application, designed for predicting call option values. It incorporates Bootstrap for styling, providing a responsive layout with file upload forms, navigation buttons, and result display sections, thus ensuring a user-friendly experience.</span></span>
+<span id="cb3-203"><a href="#cb3-203" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-204"><a href="#cb3-204" aria-hidden="true" tabindex="-1"></a><span class="op">-</span> `plot.html`: Utilizes Plotly <span class="cf">for</span> dynamic data visualization, offering interactive charts that render <span class="bu">complex</span> datasets <span class="kw">in</span> an easily digestible <span class="bu">format</span>, enhancing the analytical capabilities of the application.</span>
+<span id="cb3-205"><a href="#cb3-205" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-206"><a href="#cb3-206" aria-hidden="true" tabindex="-1"></a><span class="op">-</span> `view_uploaded_data.html`: Lists the uploaded database files, enabling users to access <span class="kw">and</span> review the data they have provided, fostering transparency <span class="kw">and</span> control over the processed information.</span>
+<span id="cb3-207"><a href="#cb3-207" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-208"><a href="#cb3-208" aria-hidden="true" tabindex="-1"></a><span class="op">-</span> `view_data.html`: Exhibits the content <span class="im">from</span> two distinct datasets, providing a comprehensive view of the data under analysis <span class="kw">and</span> facilitating a deeper understanding of the predictive context.</span>
+<span id="cb3-209"><a href="#cb3-209" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-210"><a href="#cb3-210" aria-hidden="true" tabindex="-1"></a><span class="op">-</span> `show_prediction.html`: Displays the outcome of predictive analyses, guiding users to detailed visual representations <span class="kw">and</span> insights derived <span class="im">from</span> their data.</span>
+<span id="cb3-211"><a href="#cb3-211" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-212"><a href="#cb3-212" aria-hidden="true" tabindex="-1"></a><span class="op">-</span> `Test_Set_Predictions.html`: Incorporates Plotly JavaScript to generate interactive data visualizations, allowing <span class="cf">for</span> an engaging <span class="kw">and</span> informative exploration of predictive results within the web environment.</span>
+<span id="cb3-213"><a href="#cb3-213" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-214"><a href="#cb3-214" aria-hidden="true" tabindex="-1"></a>Next, we will conduct a comprehensive analysis of each template<span class="st">'s functionalities and contributions, examining the web pages in our prototype to assess their quality and effectiveness.</span></span>
+<span id="cb3-215"><a href="#cb3-215" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-216"><a href="#cb3-216" aria-hidden="true" tabindex="-1"></a><span class="er">### 3.2.1 Welcome Page</span></span>
+<span id="cb3-217"><a href="#cb3-217" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-218"><a href="#cb3-218" aria-hidden="true" tabindex="-1"></a>Our welcome page design seamlessly integrates various elements to optimize `user experience` <span class="kw">and</span> `functionality`. Users are provided <span class="cf">with</span> intuitive `<span class="st">"Browse"</span> buttons` to swiftly upload local CSV files. Upon clicking the `<span class="st">"Upload &amp; Save"</span> button`, evaluation results are promptly generated within a few<span class="op">-</span>second timeframe, ensuring `efficiency` <span class="kw">in</span> data processing. Additionally, users can easily access <span class="kw">and</span> review their uploaded dataset (csv files) online by selecting the `<span class="st">"View Data"</span>`. For a comprehensive analysis, users can explore `interactive prediction graphs` through the `<span class="st">"View Prediction"</span> feature`, enhancing their ability to interpret <span class="kw">and</span> analyze data trends effectively.</span>
+<span id="cb3-219"><a href="#cb3-219" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-220"><a href="#cb3-220" aria-hidden="true" tabindex="-1"></a><span class="op">!</span>[flask3.png](index_files<span class="op">/</span>figure<span class="op">-</span>html<span class="op">/</span>cell<span class="op">-</span><span class="dv">31</span><span class="op">-</span><span class="dv">1</span><span class="op">-</span>flask3.png)</span>
+<span id="cb3-221"><a href="#cb3-221" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-222"><a href="#cb3-222" aria-hidden="true" tabindex="-1"></a><span class="co">#### Color Scheme and Aesthetics `index.html`</span></span>
+<span id="cb3-223"><a href="#cb3-223" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-224"><a href="#cb3-224" aria-hidden="true" tabindex="-1"></a><span class="op">-</span> <span class="op">**</span>Color Choice:<span class="op">**</span> In `index.html`, we deliberately choose a light blue background color (<span class="co">#ADD8E6) to promote a serene ambiance conducive to focused reading and analysis. The semi-transparent white background (rgba(255, 255, 255, 0.8)) within container elements aims to highlight content while maintaining visual harmony.</span></span>
+<span id="cb3-225"><a href="#cb3-225" aria-hidden="true" tabindex="-1"></a>```html</span>
+<span id="cb3-226"><a href="#cb3-226" aria-hidden="true" tabindex="-1"></a><span class="op">&lt;</span>style<span class="op">&gt;</span></span>
+<span id="cb3-227"><a href="#cb3-227" aria-hidden="true" tabindex="-1"></a>    body {</span>
+<span id="cb3-228"><a href="#cb3-228" aria-hidden="true" tabindex="-1"></a>        background<span class="op">-</span>color: <span class="co">#ADD8E6;</span></span>
+<span id="cb3-229"><a href="#cb3-229" aria-hidden="true" tabindex="-1"></a>        padding<span class="op">-</span>top: <span class="dv">20</span><span class="er">px</span><span class="op">;</span></span>
+<span id="cb3-230"><a href="#cb3-230" aria-hidden="true" tabindex="-1"></a>        display: flex<span class="op">;</span></span>
+<span id="cb3-231"><a href="#cb3-231" aria-hidden="true" tabindex="-1"></a>        justify<span class="op">-</span>content: center<span class="op">;</span></span>
+<span id="cb3-232"><a href="#cb3-232" aria-hidden="true" tabindex="-1"></a>        align<span class="op">-</span>items: center<span class="op">;</span></span>
+<span id="cb3-233"><a href="#cb3-233" aria-hidden="true" tabindex="-1"></a>        height: <span class="dv">100</span><span class="er">vh</span><span class="op">;</span></span>
+<span id="cb3-234"><a href="#cb3-234" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb3-235"><a href="#cb3-235" aria-hidden="true" tabindex="-1"></a>    .container {</span>
+<span id="cb3-236"><a href="#cb3-236" aria-hidden="true" tabindex="-1"></a>        <span class="bu">max</span><span class="op">-</span>width: <span class="dv">800</span><span class="er">px</span><span class="op">;</span></span>
+<span id="cb3-237"><a href="#cb3-237" aria-hidden="true" tabindex="-1"></a>        text<span class="op">-</span>align: center<span class="op">;</span></span>
+<span id="cb3-238"><a href="#cb3-238" aria-hidden="true" tabindex="-1"></a>        background<span class="op">-</span>color: rgba(<span class="dv">255</span>, <span class="dv">255</span>, <span class="dv">255</span>, <span class="fl">0.8</span>)<span class="op">;</span></span>
+<span id="cb3-239"><a href="#cb3-239" aria-hidden="true" tabindex="-1"></a>        padding: <span class="dv">40</span><span class="er">px</span><span class="op">;</span></span>
+<span id="cb3-240"><a href="#cb3-240" aria-hidden="true" tabindex="-1"></a>        border<span class="op">-</span>radius: <span class="dv">20</span><span class="er">px</span><span class="op">;</span></span>
+<span id="cb3-241"><a href="#cb3-241" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb3-242"><a href="#cb3-242" aria-hidden="true" tabindex="-1"></a>    <span class="op">/*</span> Additional CSS styles <span class="cf">for</span> buttons, labels, <span class="kw">and</span> text sizes are also defined <span class="kw">in</span> this section <span class="op">*/</span></span>
+<span id="cb3-243"><a href="#cb3-243" aria-hidden="true" tabindex="-1"></a><span class="op">&lt;/</span>style<span class="op">&gt;</span></span>
+<span id="cb3-244"><a href="#cb3-244" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-245"><a href="#cb3-245" aria-hidden="true" tabindex="-1"></a><span class="co">#### Modular Design with Bootstrap in `index.html`</span></span>
+<span id="cb3-246"><a href="#cb3-246" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-247"><a href="#cb3-247" aria-hidden="true" tabindex="-1"></a><span class="op">-</span> <span class="op">**</span>Grid System Utilization:<span class="op">**</span> We utilize Bootstrap<span class="st">'s grid system to create a responsive layout, dividing content into grid columns with classes like `container`, `row`, and `col-*`, ensuring seamless alignment across devices. This fosters a visually appealing and user-friendly design. Here'</span>s how it<span class="st">'s integrated:</span></span>
+<span id="cb3-248"><a href="#cb3-248" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-249"><a href="#cb3-249" aria-hidden="true" tabindex="-1"></a><span class="er">```html</span></span>
+<span id="cb3-250"><a href="#cb3-250" aria-hidden="true" tabindex="-1"></a><span class="op">&lt;</span>div <span class="kw">class</span><span class="op">=</span><span class="st">"container"</span><span class="op">&gt;</span></span>
+<span id="cb3-251"><a href="#cb3-251" aria-hidden="true" tabindex="-1"></a>    <span class="op">&lt;!--</span> Content structured using Bootstrap<span class="st">'s grid system --&gt;</span></span>
+<span id="cb3-252"><a href="#cb3-252" aria-hidden="true" tabindex="-1"></a><span class="er">&lt;/div&gt;</span></span>
+<span id="cb3-253"><a href="#cb3-253" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-254"><a href="#cb3-254" aria-hidden="true" tabindex="-1"></a><span class="op">-</span> <span class="op">**</span>Custom CSS Classes Integration:<span class="op">**</span> Custom CSS classes are integrated to style elements such <span class="im">as</span> buttons, forms, <span class="kw">and</span> text, maintaining a cohesive design language <span class="kw">and</span> enhancing visual appeal.</span>
+<span id="cb3-255"><a href="#cb3-255" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-256"><a href="#cb3-256" aria-hidden="true" tabindex="-1"></a>```css</span>
+<span id="cb3-257"><a href="#cb3-257" aria-hidden="true" tabindex="-1"></a>.btn<span class="op">-</span>group .btn {</span>
+<span id="cb3-258"><a href="#cb3-258" aria-hidden="true" tabindex="-1"></a>    margin: <span class="dv">0</span> <span class="dv">10</span><span class="er">px</span><span class="op">;</span></span>
+<span id="cb3-259"><a href="#cb3-259" aria-hidden="true" tabindex="-1"></a>    font<span class="op">-</span>size: <span class="dv">36</span><span class="er">px</span><span class="op">;</span></span>
+<span id="cb3-260"><a href="#cb3-260" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb3-261"><a href="#cb3-261" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-262"><a href="#cb3-262" aria-hidden="true" tabindex="-1"></a><span class="op">-</span> <span class="op">**</span>Responsive Design Features:<span class="op">**</span> Leveraging Bootstrap<span class="st">'s responsive utilities like breakpoints and flexbox classes (`d-flex`, `justify-content-center`, `align-items-center`), we ensure our webpage adapts smoothly to various screen sizes and orientations for optimal user experience.</span></span>
+<span id="cb3-263"><a href="#cb3-263" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-264"><a href="#cb3-264" aria-hidden="true" tabindex="-1"></a><span class="er">```html</span></span>
+<span id="cb3-265"><a href="#cb3-265" aria-hidden="true" tabindex="-1"></a><span class="op">&lt;</span>div <span class="kw">class</span><span class="op">=</span><span class="st">"container"</span><span class="op">&gt;</span></span>
+<span id="cb3-266"><a href="#cb3-266" aria-hidden="true" tabindex="-1"></a>    <span class="op">&lt;</span>iframe src<span class="op">=</span><span class="st">"</span><span class="sc">{{</span><span class="st"> plot </span><span class="sc">}}</span><span class="st">"</span> width<span class="op">=</span><span class="st">"100%"</span> height<span class="op">=</span><span class="st">"500px"</span><span class="op">&gt;&lt;/</span>iframe<span class="op">&gt;</span></span>
+<span id="cb3-267"><a href="#cb3-267" aria-hidden="true" tabindex="-1"></a><span class="op">&lt;/</span>div<span class="op">&gt;</span></span>
+<span id="cb3-268"><a href="#cb3-268" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-269"><a href="#cb3-269" aria-hidden="true" tabindex="-1"></a><span class="op">-</span> <span class="op">**</span>Component Reusability:<span class="op">**</span> By using Bootstrap<span class="st">'s built-in components such as navigation bars, buttons, and forms, we enhance code modularity and maintain a consistent design language throughout the project, saving time and effort in UI development.</span></span>
+<span id="cb3-270"><a href="#cb3-270" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-271"><a href="#cb3-271" aria-hidden="true" tabindex="-1"></a><span class="er">```html</span></span>
+<span id="cb3-272"><a href="#cb3-272" aria-hidden="true" tabindex="-1"></a><span class="op">&lt;</span>div <span class="kw">class</span><span class="op">=</span><span class="st">"btn-group"</span> role<span class="op">=</span><span class="st">"group"</span> aria<span class="op">-</span>label<span class="op">=</span><span class="st">"Actions"</span><span class="op">&gt;</span></span>
+<span id="cb3-273"><a href="#cb3-273" aria-hidden="true" tabindex="-1"></a>    <span class="op">&lt;</span>a href<span class="op">=</span><span class="st">"</span><span class="sc">{{</span><span class="st"> url_for('view_data') </span><span class="sc">}}</span><span class="st">"</span> <span class="kw">class</span><span class="op">=</span><span class="st">"btn btn-info"</span><span class="op">&gt;</span>View Data<span class="op">&lt;/</span>a<span class="op">&gt;</span></span>
+<span id="cb3-274"><a href="#cb3-274" aria-hidden="true" tabindex="-1"></a>    <span class="op">&lt;</span>a href<span class="op">=</span><span class="st">"</span><span class="sc">{{</span><span class="st"> url_for('show_prediction') </span><span class="sc">}}</span><span class="st">"</span> <span class="kw">class</span><span class="op">=</span><span class="st">"btn btn-info"</span><span class="op">&gt;</span>View Prediction<span class="op">&lt;/</span>a<span class="op">&gt;</span></span>
+<span id="cb3-275"><a href="#cb3-275" aria-hidden="true" tabindex="-1"></a><span class="op">&lt;/</span>div<span class="op">&gt;</span></span>
+<span id="cb3-276"><a href="#cb3-276" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-277"><a href="#cb3-277" aria-hidden="true" tabindex="-1"></a><span class="co">### 3.2.2 Evaluation &amp; Results Page</span></span>
+<span id="cb3-278"><a href="#cb3-278" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-279"><a href="#cb3-279" aria-hidden="true" tabindex="-1"></a>After clicking the `<span class="st">"Upload &amp; Save"</span>` button, the client <span class="kw">is</span> directed to our <span class="op">**</span>Evaluation <span class="op">&amp;</span> Results<span class="op">**</span> page, where they can view both numerical results <span class="kw">and</span> an interactive graph which provides visual insights, allowing users to explore <span class="kw">and</span> analyze the data trends effectively.</span>
+<span id="cb3-280"><a href="#cb3-280" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-281"><a href="#cb3-281" aria-hidden="true" tabindex="-1"></a><span class="op">!</span>[flask4.png](index_files<span class="op">/</span>figure<span class="op">-</span>html<span class="op">/</span>cell<span class="op">-</span><span class="dv">39</span><span class="op">-</span><span class="dv">1</span><span class="op">-</span>flask4.png)</span>
+<span id="cb3-282"><a href="#cb3-282" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-283"><a href="#cb3-283" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-284"><a href="#cb3-284" aria-hidden="true" tabindex="-1"></a><span class="op">**</span>Numerical Results Display <span class="kw">in</span> `evaluate_and_visualize.html`<span class="op">**</span></span>
+<span id="cb3-285"><a href="#cb3-285" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-286"><a href="#cb3-286" aria-hidden="true" tabindex="-1"></a>```html</span>
+<span id="cb3-287"><a href="#cb3-287" aria-hidden="true" tabindex="-1"></a>{<span class="op">%</span> <span class="cf">if</span> test_loss <span class="kw">is</span> defined <span class="op">%</span>}</span>
+<span id="cb3-288"><a href="#cb3-288" aria-hidden="true" tabindex="-1"></a>    <span class="op">&lt;</span>h2<span class="op">&gt;</span>Evaluation Results:<span class="op">&lt;/</span>h2<span class="op">&gt;</span></span>
+<span id="cb3-289"><a href="#cb3-289" aria-hidden="true" tabindex="-1"></a>    <span class="op">&lt;</span>p<span class="op">&gt;</span>Test Loss: {{ test_loss }}<span class="op">&lt;/</span>p<span class="op">&gt;</span></span>
+<span id="cb3-290"><a href="#cb3-290" aria-hidden="true" tabindex="-1"></a>    <span class="op">&lt;</span>p<span class="op">&gt;</span>MSE Loss: {{ mse_loss }}<span class="op">&lt;/</span>p<span class="op">&gt;</span></span>
+<span id="cb3-291"><a href="#cb3-291" aria-hidden="true" tabindex="-1"></a>    <span class="op">&lt;</span>p<span class="op">&gt;</span>RMSE Loss: {{ rmse_loss }}<span class="op">&lt;/</span>p<span class="op">&gt;</span></span>
+<span id="cb3-292"><a href="#cb3-292" aria-hidden="true" tabindex="-1"></a>    <span class="op">&lt;</span>p<span class="op">&gt;</span>R2 Score: {{ r2_score }}<span class="op">&lt;/</span>p<span class="op">&gt;</span></span>
+<span id="cb3-293"><a href="#cb3-293" aria-hidden="true" tabindex="-1"></a>    <span class="op">&lt;</span>iframe src<span class="op">=</span><span class="st">"</span><span class="sc">{{</span><span class="st"> plot </span><span class="sc">}}</span><span class="st">"</span> width<span class="op">=</span><span class="st">"100%"</span> height<span class="op">=</span><span class="st">"500px"</span><span class="op">&gt;&lt;/</span>iframe<span class="op">&gt;</span></span>
+<span id="cb3-294"><a href="#cb3-294" aria-hidden="true" tabindex="-1"></a>{<span class="op">%</span> endif <span class="op">%</span>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<ul>
+<li><p><strong>Clarity:</strong> The page presents evaluation metrics such as Test Loss, Mean Squared Error (MSE) Loss, Root Mean Squared Error (RMSE) Loss, and R-squared (R2) Score in a clear and structured manner using HTML <code>&lt;p&gt;</code> tags. This clarity enhances the understanding of model performance.</p></li>
+<li><p><strong>Precision:</strong> The page ensures the precision and accuracy of displayed numerical values, crucial for data analysis. It typically maintains a precision of at least ten decimal places, ensuring data accuracy for in-depth analysis and comparison.</p></li>
+<li><p><strong>Contextual Rendering:</strong> The use of conditional blocks ensures that numerical results are displayed only when relevant data is available, preventing confusion and presenting information contextually.</p></li>
+</ul>
+<p><strong>Embedding Plotly Graph in <code>evaluate_and_visualize.html</code></strong></p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode html code-with-copy"><code class="sourceCode html"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">iframe</span><span class="ot"> src</span><span class="op">=</span><span class="st">"{{ plot }}"</span><span class="ot"> width</span><span class="op">=</span><span class="st">"100%"</span><span class="ot"> height</span><span class="op">=</span><span class="st">"500px"</span><span class="dt">&gt;&lt;/</span><span class="kw">iframe</span><span class="dt">&gt;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<ul>
+<li><strong>Visual Analysis:</strong> The page enhances data analysis by embedding a Plotly graph within an <code>&lt;iframe&gt;</code>. This interactive graph provides visual insights into trends and patterns, complementing the numerical results.</li>
+<li><strong>Interactivity:</strong> Users can interact with the embedded Plotly graph, such as zooming, panning, and hovering over data points to view detailed information. This interactivity fosters a deeper understanding of data trends and anomalies.</li>
+<li><strong>Integration:</strong> The seamless integration of the Plotly graph within the HTML page enhances user experience, allowing for a comprehensive analysis of model performance with both numerical and visual data representations.</li>
+</ul>
+</section>
+<section id="view-data-page" class="level3">
+<h3 class="anchored" data-anchor-id="view-data-page">3.2.3 View Data Page</h3>
+<p>By clicking the “View Data” button, users are directed to the data page, where all previously uploaded data files are displayed. Each file is accompanied by a “View” button on the right-hand side, allowing users to view the uploaded data online with a single click.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="index_files/figure-html/cell-44-1-flask5.png" class="img-fluid figure-img"></p>
+<figcaption>flask5.png</figcaption>
+</figure>
+</div>
+<p><strong>File Listing in <code>view_data.html</code></strong></p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode html code-with-copy"><code class="sourceCode html"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co">&lt;!-- Table body section to display the content. --&gt;</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">tbody</span><span class="dt">&gt;</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">&lt;!-- Loop through each file in the 'files' list passed from the Flask backend. --&gt;</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    {% for file in files %}</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&lt;</span><span class="kw">tr</span><span class="dt">&gt;</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>        <span class="dt">&lt;</span><span class="kw">td</span><span class="dt">&gt;</span>{{ file }}<span class="dt">&lt;/</span><span class="kw">td</span><span class="dt">&gt;</span> <span class="co">&lt;!-- Displaying the file name. --&gt;</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>        <span class="dt">&lt;</span><span class="kw">td</span><span class="dt">&gt;&lt;</span><span class="kw">a</span><span class="ot"> href</span><span class="op">=</span><span class="st">"{{ url_for('view_data', filename1=file, filename2=file) }}"</span><span class="dt">&gt;</span>View<span class="dt">&lt;/</span><span class="kw">a</span><span class="dt">&gt;&lt;/</span><span class="kw">td</span><span class="dt">&gt;</span> <span class="co">&lt;!-- Link to view data. --&gt;</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&lt;/</span><span class="kw">tr</span><span class="dt">&gt;</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    {% endfor %}</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;/</span><span class="kw">tbody</span><span class="dt">&gt;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<ul>
+<li>The “File Name” column displays each uploaded file’s name, fetched from the <code>files</code> list passed from the backend. Within each table row (
+
+), the file name is displayed in the “File Name” column (
+
+{{ file }}
+
+). This ensures that users can easily identify and select the files they want to view.</li>
+</ul>
+<p><strong>Actionable Links in <code>view_data.html</code></strong></p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode html code-with-copy"><code class="sourceCode html"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">td</span><span class="dt">&gt;&lt;</span><span class="kw">a</span><span class="ot"> href</span><span class="op">=</span><span class="st">"{{ url_for('view_data', filename=file) }}"</span><span class="dt">&gt;</span>View<span class="dt">&lt;/</span><span class="kw">a</span><span class="dt">&gt;&lt;/</span><span class="kw">td</span><span class="dt">&gt;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<ul>
+<li><p>The “Actions” column provides a convenient “View” link for each file, allowing users to seamlessly navigate to detailed data views with a single click. This intuitive design enhances the overall user experience and promotes efficient data exploration.</p></li>
+<li><p>The “View” links are dynamically generated using Flask’s powerful <code>url_for</code> function, ensuring accurate and reliable navigation to the corresponding data views.</p></li>
+</ul>
+</section>
+<section id="view-uploaded-data-page" class="level3">
+<h3 class="anchored" data-anchor-id="view-uploaded-data-page">3.2.4 View Uploaded Data Page</h3>
+<p>When users click the “View” button on the View Data Page, they are seamlessly navigated to a dynamically generated web page that displays the data they have previously uploaded. This feature provides users with a convenient and intuitive way to access and examine their uploaded datasets within the application, enhancing the overall user experience and facilitating efficient data analysis.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="index_files/figure-html/cell-49-1-flask6.png" class="img-fluid figure-img"></p>
+<figcaption>flask6.png</figcaption>
+</figure>
+</div>
+<p><strong>Dynamic Content Rendering in <code>view_uploaded_data.html</code></strong></p>
+<p>The <code>&lt;tbody&gt;</code> section of the table dynamically displays uploaded files. This functionality is achieved through the use of server-side templating, specifically with Jinja2 in Flask, allowing for iteration over a list of files and rendering each as a row in the table.</p>
+<ul>
+<li><strong>Functionality</strong>: Iteration over the <code>files</code> array to create a table row for each file.</li>
+<li><strong>Data Binding</strong>: Server-side rendering with <code>{ file }</code> to bind file names directly into the table.</li>
+<li><strong>Dynamic URL Generation</strong>: The <code>url_for</code> function generates actionable links for each file, enabling user interaction.</li>
+</ul>
+<p>Here is the code snippet in <code>view_uploaded_data.html</code> illustrating this functionality:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode html code-with-copy"><code class="sourceCode html"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">tbody</span><span class="dt">&gt;</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">&lt;!-- Table body section to display the content. --&gt;</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    {% for file in files %}</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="co">&lt;!-- Loop through each file in the 'files' list passed from the Flask backend. --&gt;</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&lt;</span><span class="kw">tr</span><span class="dt">&gt;</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>        <span class="dt">&lt;</span><span class="kw">td</span><span class="dt">&gt;</span>{{ file }}<span class="dt">&lt;/</span><span class="kw">td</span><span class="dt">&gt;</span> <span class="co">&lt;!-- Displaying the file name. --&gt;</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>        <span class="dt">&lt;</span><span class="kw">td</span><span class="dt">&gt;&lt;</span><span class="kw">a</span><span class="ot"> href</span><span class="op">=</span><span class="st">"{{ url_for('view_data', filename1=file, filename2=file) }}"</span><span class="dt">&gt;</span>View<span class="dt">&lt;/</span><span class="kw">a</span><span class="dt">&gt;&lt;/</span><span class="kw">td</span><span class="dt">&gt;</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&lt;/</span><span class="kw">tr</span><span class="dt">&gt;</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    {% endfor %}</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;/</span><span class="kw">tbody</span><span class="dt">&gt;</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>### 3.2.5 View Prediction Page</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>Upon selecting the "View Prediction" button on the initial interface, users are directed to a page displaying test set predictions, featuring an interactive graph created with Plotly. This visualization fosters an engaging user experience, permitting detailed examination of the predictions. The graph's interactive features—zoom, pan, and data point hover—provide enriched informational access, allowing tailored analytical perspectives.</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>![flask7.png](index_files/figure-html/cell-53-1-flask7.png)</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>The graph offers intuitive controls for a seamless user experience. Users can double-click to revert to the original zoom level after examining specific intervals. The operation bar in the upper right corner allows users to download the plot as a PNG, autoscale the axes, and reset the axes effortlessly.</span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>![flask8.png](index_files/figure-html/cell-55-1-flask8.png)</span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>![flask9.png](index_files/figure-html/cell-56-1-flask9.png)</span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>**Dynamic Plot Rendering with Plotly in `plot.html`**</span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>```html</span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">script</span><span class="ot"> src</span><span class="op">=</span><span class="st">"https://cdn.plot.ly/plotly-latest.min.js"</span><span class="dt">&gt;&lt;/</span><span class="kw">script</span><span class="dt">&gt;</span></span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">div</span><span class="ot"> id</span><span class="op">=</span><span class="st">"plot"</span><span class="dt">&gt;&lt;/</span><span class="kw">div</span><span class="dt">&gt;</span></span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">script</span><span class="dt">&gt;</span></span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a>    <span class="kw">var</span> plot_path <span class="op">=</span> <span class="st">"{{ plot_path }}"</span><span class="op">;</span></span>
+<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a>    Plotly<span class="op">.</span><span class="at">d3</span><span class="op">.</span><span class="fu">html</span>(plot_path<span class="op">,</span> <span class="kw">function</span>(error<span class="op">,</span> data) {</span>
+<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> (error) {</span>
+<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="bu">console</span><span class="op">.</span><span class="fu">warn</span>(error)<span class="op">;</span></span>
+<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a>        }</span>
+<span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a>        <span class="bu">document</span><span class="op">.</span><span class="fu">getElementById</span>(<span class="st">'plot'</span>)<span class="op">.</span><span class="at">innerHTML</span> <span class="op">=</span> data<span class="op">;</span></span>
+<span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a>    })<span class="op">;</span></span>
+<span id="cb7-36"><a href="#cb7-36" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;/</span><span class="kw">script</span><span class="dt">&gt;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<ul>
+<li><p><strong>Integration with Plotly:</strong> The inclusion of the Plotly library through the <code>&lt;script&gt;</code> tag is a significant aspect of this template.</p></li>
+<li><p><strong>Asynchronous Data Fetching:</strong> The JavaScript block fetches the plot data asynchronously using Plotly’s d3.html function. This method loads the plot data from a specified path (plot_path), which is dynamically provided by the server-side application. This approach ensures that the webpage remains responsive and that the plot is updated seamlessly without the need for a full page reload.</p></li>
+<li><p><strong>Dynamic Content Loading:</strong> The template utilizes an empty</p>
+<div>
+<p>element with the id plot, which serves as a placeholder for the graph. The actual content of the graph is loaded dynamically through JavaScript, enabling the webpage to render data-driven plots efficiently.</p></div></li>
+</ul>
+<p><strong>Conditional Rendering and Link Generation in <code>show_prediction.html</code></strong></p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode html code-with-copy"><code class="sourceCode html"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>{% if prediction %}</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&lt;</span><span class="kw">h3</span><span class="dt">&gt;</span>Predicted Mean: {{ prediction }}<span class="dt">&lt;/</span><span class="kw">h3</span><span class="dt">&gt;</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&lt;</span><span class="kw">p</span><span class="dt">&gt;&lt;</span><span class="kw">a</span><span class="ot"> href</span><span class="op">=</span><span class="st">"{{ plot }}"</span><span class="ot"> target</span><span class="op">=</span><span class="st">"_blank"</span><span class="dt">&gt;</span>View Test Set Predictions Plot<span class="dt">&lt;/</span><span class="kw">a</span><span class="dt">&gt;&lt;/</span><span class="kw">p</span><span class="dt">&gt;</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>{% else %}</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&lt;</span><span class="kw">p</span><span class="dt">&gt;</span>No prediction available<span class="dt">&lt;/</span><span class="kw">p</span><span class="dt">&gt;</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>{% endif %}</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">a</span><span class="ot"> href</span><span class="op">=</span><span class="st">"{{ url_for('index') }}"</span><span class="ot"> class</span><span class="op">=</span><span class="st">"btn btn-primary"</span><span class="dt">&gt;</span>Go Back<span class="dt">&lt;/</span><span class="kw">a</span><span class="dt">&gt;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<ul>
+<li><p><strong>Conditional Content Display:</strong> The template employs Jinja2’s conditional syntax {% if prediction %} to check the presence of a prediction variable. This approach ensures that the user interface adapts to the data context, displaying the prediction results when available. If the prediction variable contains a value, the template renders an <code>&lt;h3&gt;</code> tag showing the predicted mean, enhancing the user’s understanding of the model output.</p></li>
+<li><p><strong>Dynamic Link Creation:</strong> The template dynamically generates a link to a plot <code>(&lt;a href="{{ plot }}" target="_blank"&gt;)</code> when prediction data is available. This link, opened in a new tab (target=“_blank”), leads to a detailed visualization of the test set predictions.</p></li>
+</ul>
+</section>
+</section>
+<section id="summary" class="level2">
+<h2 class="anchored" data-anchor-id="summary">Summary</h2>
+<p>Our web application, through its meticulously designed templates and key features, offers a streamlined and enriched user experience. We are committed to enabling users to efficiently manage, analyze, and interpret their data within a cohesive and intuitive environment. By providing a user-friendly interface and powerful functionality, we sincerely aim to empower users to harness the full potential of their data. Our goal is to support users in making informed decisions and fostering a deeper understanding of their analytical contexts.</p>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

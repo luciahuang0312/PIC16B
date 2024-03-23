@@ -2,8 +2,10 @@
   {
     "listing": "/index.html",
     "items": [
+      "/posts/FlaskBlogPost/index.html",
       "/posts/16BHW6/index.html",
       "/posts/16BHW5/index.html",
+      "/posts/New/index.html",
       "/posts/16BHW4/index.html",
       "/posts/16BHW3/index.html",
       "/posts/16BHW2/index.html",
