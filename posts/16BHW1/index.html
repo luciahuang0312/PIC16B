@@ -192,8 +192,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 
-<section id="constructing-a-comprehensive-global-temperature-database-and-creating-engaging-visualizations-with-plotly-express" class="level3">
-<h3 class="anchored" data-anchor-id="constructing-a-comprehensive-global-temperature-database-and-creating-engaging-visualizations-with-plotly-express">Constructing a Comprehensive Global Temperature Database and Creating Engaging Visualizations with Plotly Express</h3>
+<section id="constructing-a-comprehensive-global-temperature-database-and-creating-engaging-visualizations-with-plotly-express" class="level2">
+<h2 class="anchored" data-anchor-id="constructing-a-comprehensive-global-temperature-database-and-creating-engaging-visualizations-with-plotly-express">Constructing a Comprehensive Global Temperature Database and Creating Engaging Visualizations with Plotly Express</h2>
 <p>Let’s first use this setup to ensure that we are equipped with the necessary tools for comprehensive data handling, from database operations and numerical computing to advanced plotting and statistical analysis.</p>
 <div id="cell-3" class="cell" data-execution_count="135">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Enables interaction with SQLite databases</span></span>
@@ -220,8 +220,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>conn <span class="op">=</span> sqlite3.<span class="ex">connect</span>(<span class="st">"TEMP.db"</span>) <span class="co"># we name this database as TEMP.db</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>To construct our database, we’ll start with three CSV files: temps.csv, station-metadata.csv, and fips-10-4-to-iso-country-codes.csv. These files will form the foundation for our three tables.</p>
-<section id="temperature-data-processing" class="level5">
-<h5 class="anchored" data-anchor-id="temperature-data-processing">Temperature Data Processing</h5>
+</section>
+<section id="temperature-data-processing" class="level4">
+<h4 class="anchored" data-anchor-id="temperature-data-processing">Temperature Data Processing</h4>
 <p>We use code below to read a large CSV file (temps.csv) containing temperature data in chunks and processes each chunk to prepare the data for analysis.</p>
 <p>The CSV file has the following columns: - ID: Identifier for each location - Year: Year of the temperature measurement - Columns for each month (e.g., “Month_1”, “Month_2”, etc.): Temperature values for each month</p>
 <p>The script performs the following steps: 1. Reads the CSV file in chunks of 100,000 rows using <code>pd.read_csv()</code> with <code>chunksize</code> parameter. 2. Processes each chunk using the <code>prepare_df()</code> function, which: - Sets the index to “ID” and “Year” columns - Stacks the month columns to create a single “Month” column - Resets the index to flatten the data - Renames the columns to “Month” and “Temp” - Extracts the month number from the “Month” column and converts it to integer - Divides the temperature values by 100 to convert them to the desired unit 3. The processed chunks can be further analyzed or combined as needed.</p>
@@ -328,12 +329,11 @@ CREATE TABLE "countries" (
 </div>
 <p>We close the database connection using conn.close() to release any resources held by the connection and ensure that all transactions have been properly committed or rolled back. This helps prevent resource leaks and maintains the integrity of the data in the database.</p>
 </section>
-</section>
-<section id="write-a-query-function-query_climate_database" class="level4">
-<h4 class="anchored" data-anchor-id="write-a-query-function-query_climate_database">2. Write a Query Function (query_climate_database())</h4>
+<section id="write-a-query-function-query_climate_database" class="level3">
+<h3 class="anchored" data-anchor-id="write-a-query-function-query_climate_database">2. Write a Query Function (query_climate_database())</h3>
 <p>In a seperate python file climate_database.py, we are going to write a function called query_climate_database(). The <code>query_climate_database</code> function will retrieve climate data from a SQLite database based on specified parameters such as country, year range, and month. It will be required to connect to the database, execute a SQL query that joins multiple tables and applies filters, and return the results as a pandas DataFrame. This function can provide a convenient way to query and obtain structured climate data for further analysis.</p>
 <p>Now we import the function <code>query_climate_database</code> from <code>climate_database.py</code> and inspect its source code using the <code>inspect</code> module:</p>
-<div id="cell-24" class="cell" data-execution_count="153">
+<div id="cell-24" class="cell" data-execution_count="221">
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> climate_database <span class="im">import</span> query_climate_database <span class="co"># Import the function</span></span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> inspect <span class="co"># Access the source code info</span></span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(inspect.getsource(query_climate_database)) <span class="co"># Print the source code</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -365,7 +365,6 @@ CREATE TABLE "countries" (
     """
     params = (country, year_begin, year_end, month)
     result_df = pd.read_sql_query(cmd, conn, params=params)
-    conn.close()
     return result_df
 </code></pre>
 </div>
@@ -514,8 +513,8 @@ CREATE TABLE "countries" (
 </div>
 <p>We indeed get the correct result.</p>
 </section>
-<section id="write-a-geographic-scatter-function-for-yearly-temperature-increase" class="level4">
-<h4 class="anchored" data-anchor-id="write-a-geographic-scatter-function-for-yearly-temperature-increase">3. Write a Geographic Scatter Function for Yearly Temperature Increase</h4>
+<section id="write-a-geographic-scatter-function-for-yearly-temperature-increase" class="level3">
+<h3 class="anchored" data-anchor-id="write-a-geographic-scatter-function-for-yearly-temperature-increase">3. Write a Geographic Scatter Function for Yearly Temperature Increase</h3>
 <p><strong>How does the average yearly change in temperature vary within a given country?</strong> We will now write a function to create visualization that address the above question.</p>
 <p>To begin with, we will utilize the <code>LinearRegression</code> class from the <code>sklearn</code> library to calculate the linear regression coefficient (alpha). First, we will extract the predictor variable (Year) and the response variable (Temperature) from the input dataset. Next, we will create an instance of the <code>LinearRegression</code> model, fit it to the data, and retrieve the coefficient (alpha) rounded to 4 decimal places (as the template required).</p>
 <div id="cell-31" class="cell" data-execution_count="169">
@@ -608,63 +607,59 @@ DataFrameGroupBy.apply operated on the grouping columns. This behavior is deprec
 </div>
 </div>
 </section>
-</section>
 <section id="create-more-interesting-figures" class="level3">
 <h3 class="anchored" data-anchor-id="create-more-interesting-figures">4. Create More Interesting Figures</h3>
 <p>Let’s dive into the data and uncover more fascinating insights through creative and engaging visualizations that bring the information to life.</p>
 <section id="q1-how-does-the-distribution-of-temperatures-vary-across-different-stations-within-a-specific-country-for-a-given-year" class="level5">
 <h5 class="anchored" data-anchor-id="q1-how-does-the-distribution-of-temperatures-vary-across-different-stations-within-a-specific-country-for-a-given-year">Q1: How does the distribution of temperatures vary across different stations within a specific country for a given year?</h5>
-<div id="cell-42" class="cell" data-execution_count="201">
+<div id="cell-42" class="cell" data-execution_count="220">
 <div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> climate_database <span class="im">import</span> plot_temperature_distribution <span class="co"># Import the function</span></span>
 <span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> inspect <span class="co"># Access the source code info</span></span>
 <span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(inspect.getsource(plot_temperature_distribution)) <span class="co"># Print the source code</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-error">
-<pre><code>ImportError: cannot import name 'plot_temperature_distribution' from 'climate_database' (/Users/mabook/Desktop/PIC16B/posts/16BHW1/climate_database.py)</code></pre>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+def plot_temperature_distribution(db_file, country, year):
+    """
+    Generates an interactive histogram showing the distribution of temperature readings
+    across different stations in a specified country for a given year.
+    """
+    # Establish a connection to the SQLite database
+    conn = sqlite3.connect(db_file)
+
+    # SQL query to select temperature data for the specified country and year
+    cmd = """
+        SELECT 
+            T.Temp
+        FROM temperatures T
+        JOIN stations S ON S.ID = T.Station_ID
+        JOIN countries C ON C.[FIPS 10-4] = SUBSTRING(S.ID, 1, 2)
+        WHERE C.Name = ? AND T.Year = ?
+    """
+    # Execute the SQL query and fetch the results
+    params = (country, year)
+    result_df = pd.read_sql_query(cmd, conn, params=params)
+    # Close the database connection
+    conn.close()
+    
+    # Create an interactive histogram using Plotly
+    fig = px.histogram(result_df, x='Temp', title=f'Temperature Distribution in {country} for {year}')
+    
+    # Show the plot
+    fig.show()
+    
+    return fig    
+</code></pre>
 </div>
 </div>
 <p>This function plot_temperature_distribution retrieves temperature data from a SQLite database for a specific country and year, then creates an interactive histogram using Plotly to visualize the temperature distribution across various weather stations within the country. The visualization aids in understanding the overall temperature trends and variances during the specified year.</p>
-<div id="cell-44" class="cell" data-execution_count="196">
-<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sqlite3</span>
-<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
-<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> plotly.express <span class="im">as</span> px</span>
-<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> plot_temperature_distribution(db_file, country, year):</span>
-<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
-<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a><span class="co">    Creates an interactive histogram for the distribution of temperatures across all stations</span></span>
-<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a><span class="co">    in a country during a specific year using Plotly.</span></span>
-<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
-<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>    <span class="co"># SQL command to retrieve temperature data for the specified country and year</span></span>
-<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>    cmd <span class="op">=</span> <span class="st">"""</span></span>
-<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a><span class="st">        SELECT </span></span>
-<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a><span class="st">            T.Temp</span></span>
-<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a><span class="st">        FROM temperatures T</span></span>
-<span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a><span class="st">        JOIN stations S ON S.ID = T.ID</span></span>
-<span id="cb23-16"><a href="#cb23-16" aria-hidden="true" tabindex="-1"></a><span class="st">        JOIN countries C ON C.[FIPS 10-4] = SUBSTRING(S.ID, 1, 2)</span></span>
-<span id="cb23-17"><a href="#cb23-17" aria-hidden="true" tabindex="-1"></a><span class="st">        WHERE C.Name = ? AND T.Year = ?</span></span>
-<span id="cb23-18"><a href="#cb23-18" aria-hidden="true" tabindex="-1"></a><span class="st">    """</span></span>
-<span id="cb23-19"><a href="#cb23-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-20"><a href="#cb23-20" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Connect to the SQLite database</span></span>
-<span id="cb23-21"><a href="#cb23-21" aria-hidden="true" tabindex="-1"></a>    conn <span class="op">=</span> sqlite3.<span class="ex">connect</span>(db_file)</span>
-<span id="cb23-22"><a href="#cb23-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-23"><a href="#cb23-23" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Execute the SQL query</span></span>
-<span id="cb23-24"><a href="#cb23-24" aria-hidden="true" tabindex="-1"></a>    params <span class="op">=</span> (country, year)</span>
-<span id="cb23-25"><a href="#cb23-25" aria-hidden="true" tabindex="-1"></a>    result_df <span class="op">=</span> pd.read_sql_query(cmd, conn, params<span class="op">=</span>params)</span>
-<span id="cb23-26"><a href="#cb23-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-27"><a href="#cb23-27" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Close the database connection</span></span>
-<span id="cb23-28"><a href="#cb23-28" aria-hidden="true" tabindex="-1"></a>    conn.close()</span>
-<span id="cb23-29"><a href="#cb23-29" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-30"><a href="#cb23-30" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Create an interactive histogram of temperatures using Plotly</span></span>
-<span id="cb23-31"><a href="#cb23-31" aria-hidden="true" tabindex="-1"></a>    fig <span class="op">=</span> px.histogram(result_df, x<span class="op">=</span><span class="st">'Temp'</span>, nbins<span class="op">=</span><span class="dv">30</span>, title<span class="op">=</span><span class="ss">f'Temperature Distribution in </span><span class="sc">{</span>country<span class="sc">}</span><span class="ss"> for Year </span><span class="sc">{</span>year<span class="sc">}</span><span class="ss">'</span>)</span>
-<span id="cb23-32"><a href="#cb23-32" aria-hidden="true" tabindex="-1"></a>    fig.update_xaxes(title_text<span class="op">=</span><span class="st">'Temperature (°C)'</span>)</span>
-<span id="cb23-33"><a href="#cb23-33" aria-hidden="true" tabindex="-1"></a>    fig.update_yaxes(title_text<span class="op">=</span><span class="st">'Frequency'</span>)</span>
-<span id="cb23-34"><a href="#cb23-34" aria-hidden="true" tabindex="-1"></a>    fig.show()</span>
-<span id="cb23-35"><a href="#cb23-35" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-36"><a href="#cb23-36" aria-hidden="true" tabindex="-1"></a><span class="co"># Test the function with a sample database file and parameters</span></span>
-<span id="cb23-37"><a href="#cb23-37" aria-hidden="true" tabindex="-1"></a>db_file <span class="op">=</span> <span class="st">"TEMP.db"</span>  <span class="co"># Assuming this is your SQLite database file</span></span>
-<span id="cb23-38"><a href="#cb23-38" aria-hidden="true" tabindex="-1"></a>country <span class="op">=</span> <span class="st">"India"</span></span>
-<span id="cb23-39"><a href="#cb23-39" aria-hidden="true" tabindex="-1"></a>year <span class="op">=</span> <span class="dv">1980</span>  <span class="co"># Example year from the given range</span></span>
-<span id="cb23-40"><a href="#cb23-40" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-41"><a href="#cb23-41" aria-hidden="true" tabindex="-1"></a>plot_temperature_distribution(db_file, country, year)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Now we test the plot_temperature_distribution function with a sample database file and parameters to visualize the temperature distribution across different stations in India for the year 1980. This demonstration showcases the function’s capability to generate an interactive histogram based on historical temperature data.</p>
+<div id="cell-45" class="cell" data-execution_count="196">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test the function with a sample database file and parameters</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>db_file <span class="op">=</span> <span class="st">"TEMP.db"</span>  <span class="co"># Assuming this is your SQLite database file</span></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>country <span class="op">=</span> <span class="st">"India"</span></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>year <span class="op">=</span> <span class="dv">1980</span>  <span class="co"># Example year from the given range</span></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>plot_temperature_distribution(db_file, country, year)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <iframe scrolling="no" width="100%" height="545px" src="iframe_figures/figure_196.html" frameborder="0" allowfullscreen=""></iframe>
 </div>
@@ -672,78 +667,77 @@ DataFrameGroupBy.apply operated on the grouping columns. This behavior is deprec
 </section>
 <section id="q2-what-is-the-monthly-average-temperature-trend-in-a-given-country-over-a-specified-range-of-years" class="level5">
 <h5 class="anchored" data-anchor-id="q2-what-is-the-monthly-average-temperature-trend-in-a-given-country-over-a-specified-range-of-years">Q2: What is the monthly average temperature trend in a given country over a specified range of years?</h5>
-<div id="cell-46" class="cell" data-execution_count="204">
+<div id="cell-47" class="cell" data-execution_count="222">
 <div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> climate_database <span class="im">import</span> query_temperature_by_month</span>
 <span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> inspect</span>
 <span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(inspect.getsource(query_temperature_by_month))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-error">
-<pre><code>ImportError: cannot import name 'query_temperature_by_month' from 'climate_database' (/Users/mabook/Desktop/PIC16B/posts/16BHW1/climate_database.py)</code></pre>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+def query_temperature_by_month(db_file, country, year_begin, year_end):
+    '''
+    Query average monthly temperature data from a SQLite database for a given country and time range.
+
+    This function calculates the average temperature for each month within a specified year range
+    for a given country. It utilizes a SQLite database to retrieve and aggregate the temperature
+    data from various stations across the country.
+    '''
+    conn = sqlite3.connect(db_file)
+    cmd = """
+        SELECT 
+            T.Year,
+            T.Month,
+            AVG(T.Temp) AS Avg_Temp
+        FROM temperatures T
+        JOIN stations S ON S.ID = T.ID
+        JOIN countries C ON C.[FIPS 10-4] = SUBSTRING(S.ID, 1, 2)
+        WHERE C.Name = ? AND T.Year BETWEEN ? AND ?
+        GROUP BY T.Year, T.Month
+        ORDER BY T.Year, T.Month
+    """
+    params = (country, year_begin, year_end)  # Parameters for the SQL query
+    result_df = pd.read_sql_query(cmd, conn, params=params)  # Execute the SQL query and store the result in a pandas DataFrame
+    conn.close()  # Close the database connection
+    return result_df
+</code></pre>
 </div>
 </div>
 <p>To explore the question of how monthly average temperature trends vary within a specific country over a range of years, we have designed the function query_temperature_by_month. This function systematically retrieves and analyzes temperature data from a SQLite database. It focuses on calculating the average temperature for each month during the specified period, providing a clear view of the climatic behavior and temperature fluctuations over time in the selected region.</p>
-<div id="cell-48" class="cell" data-execution_count="110">
-<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> query_temperature_by_month (db_file, country, year_begin, year_end):</span>
-<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
-<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a><span class="co">    Query average monthly temperature data from a SQLite database for a given country and time range.</span></span>
-<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a><span class="co">    This function calculates the average temperature for each month within a specified year range</span></span>
-<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a><span class="co">    for a given country. It utilizes a SQLite database to retrieve and aggregate the temperature</span></span>
-<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a><span class="co">    data from various stations across the country.</span></span>
-<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
-<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>    conn <span class="op">=</span> sqlite3.<span class="ex">connect</span>(db_file)</span>
-<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a>    cmd <span class="op">=</span> <span class="st">"""</span></span>
-<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a><span class="st">        SELECT </span></span>
-<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a><span class="st">            T.Year,</span></span>
-<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a><span class="st">            T.Month,</span></span>
-<span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a><span class="st">            AVG(T.Temp) AS Avg_Temp</span></span>
-<span id="cb26-15"><a href="#cb26-15" aria-hidden="true" tabindex="-1"></a><span class="st">        FROM temperatures T</span></span>
-<span id="cb26-16"><a href="#cb26-16" aria-hidden="true" tabindex="-1"></a><span class="st">        JOIN stations S ON S.ID = T.ID</span></span>
-<span id="cb26-17"><a href="#cb26-17" aria-hidden="true" tabindex="-1"></a><span class="st">        JOIN countries C ON C.[FIPS 10-4] = SUBSTRING(S.ID, 1, 2)</span></span>
-<span id="cb26-18"><a href="#cb26-18" aria-hidden="true" tabindex="-1"></a><span class="st">        WHERE C.Name = ? AND T.Year BETWEEN ? AND ?</span></span>
-<span id="cb26-19"><a href="#cb26-19" aria-hidden="true" tabindex="-1"></a><span class="st">        GROUP BY T.Year, T.Month</span></span>
-<span id="cb26-20"><a href="#cb26-20" aria-hidden="true" tabindex="-1"></a><span class="st">        ORDER BY T.Year, T.Month</span></span>
-<span id="cb26-21"><a href="#cb26-21" aria-hidden="true" tabindex="-1"></a><span class="st">    """</span></span>
-<span id="cb26-22"><a href="#cb26-22" aria-hidden="true" tabindex="-1"></a>    params <span class="op">=</span> (country, year_begin, year_end) <span class="co"># Parameters for the SQL query</span></span>
-<span id="cb26-23"><a href="#cb26-23" aria-hidden="true" tabindex="-1"></a>    result_df <span class="op">=</span> pd.read_sql_query(cmd, conn, params<span class="op">=</span>params) <span class="co"># Execute the SQL query and store the result in a pandas DataFrame</span></span>
-<span id="cb26-24"><a href="#cb26-24" aria-hidden="true" tabindex="-1"></a>    conn.close()  <span class="co"># Close the database connection</span></span>
-<span id="cb26-25"><a href="#cb26-25" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> result_df</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
 <p>We define the function plot_faceted_temperature_scatter to create an interactive scatter plot that illustrates the monthly average temperature trends for a specific country across a range of years. This function leverages Plotly to generate a faceted chart, where each facet represents a year, allowing for a comparative analysis of temperature changes over time.</p>
 <div id="cell-50" class="cell" data-execution_count="121">
-<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> plotly.express <span class="im">as</span> px</span>
-<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> calendar</span>
-<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> plot_faceted_temperature_scatter(db_file, country, year_begin, year_end):</span>
-<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>    df <span class="op">=</span> query_temperature_by_month(db_file, country, year_begin, year_end)</span>
-<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Plotly uses string values for color mapping</span></span>
-<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>    df[<span class="st">'Year'</span>] <span class="op">=</span> df[<span class="st">'Year'</span>].astype(<span class="bu">str</span>)</span>
-<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a>    fig <span class="op">=</span> px.scatter(df, x<span class="op">=</span><span class="st">'Month'</span>, y<span class="op">=</span><span class="st">'Avg_Temp'</span>, color<span class="op">=</span><span class="st">'Year'</span>, facet_col<span class="op">=</span><span class="st">'Year'</span>,</span>
-<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a>                     title<span class="op">=</span><span class="ss">f'Monthly Temperature Trends in </span><span class="sc">{</span>country<span class="sc">}</span><span class="ss"> (</span><span class="sc">{</span>year_begin<span class="sc">}</span><span class="ss">-</span><span class="sc">{</span>year_end<span class="sc">}</span><span class="ss">)'</span>,</span>
-<span id="cb27-12"><a href="#cb27-12" aria-hidden="true" tabindex="-1"></a>                     labels<span class="op">=</span>{<span class="st">'Avg_Temp'</span>: <span class="st">'Average Temperature (°C)'</span>, <span class="st">'Month'</span>: <span class="st">'Month'</span>},</span>
-<span id="cb27-13"><a href="#cb27-13" aria-hidden="true" tabindex="-1"></a>                     width<span class="op">=</span><span class="dv">1500</span>, height<span class="op">=</span><span class="dv">300</span>)</span>
-<span id="cb27-14"><a href="#cb27-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-15"><a href="#cb27-15" aria-hidden="true" tabindex="-1"></a>    fig.for_each_annotation(<span class="kw">lambda</span> a: a.update(text<span class="op">=</span>a.text.split(<span class="st">"="</span>)[<span class="op">-</span><span class="dv">1</span>]))</span>
-<span id="cb27-16"><a href="#cb27-16" aria-hidden="true" tabindex="-1"></a>    fig.update_xaxes(tickvals<span class="op">=</span><span class="bu">list</span>(<span class="bu">range</span>(<span class="dv">1</span>, <span class="dv">13</span>)), ticktext<span class="op">=</span><span class="bu">list</span>(calendar.month_abbr[<span class="dv">1</span>:]), tickangle<span class="op">=</span><span class="dv">45</span>)</span>
-<span id="cb27-17"><a href="#cb27-17" aria-hidden="true" tabindex="-1"></a>    fig.update_yaxes(showgrid<span class="op">=</span><span class="va">True</span>, gridwidth<span class="op">=</span><span class="dv">1</span>, gridcolor<span class="op">=</span><span class="st">'LightGrey'</span>)</span>
-<span id="cb27-18"><a href="#cb27-18" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb27-19"><a href="#cb27-19" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Adjust the layout</span></span>
-<span id="cb27-20"><a href="#cb27-20" aria-hidden="true" tabindex="-1"></a>    fig.update_layout(</span>
-<span id="cb27-21"><a href="#cb27-21" aria-hidden="true" tabindex="-1"></a>        margin<span class="op">=</span><span class="bu">dict</span>(l<span class="op">=</span><span class="dv">20</span>, r<span class="op">=</span><span class="dv">20</span>, t<span class="op">=</span><span class="dv">30</span>, b<span class="op">=</span><span class="dv">20</span>),</span>
-<span id="cb27-22"><a href="#cb27-22" aria-hidden="true" tabindex="-1"></a>        plot_bgcolor<span class="op">=</span><span class="st">'white'</span>,</span>
-<span id="cb27-23"><a href="#cb27-23" aria-hidden="true" tabindex="-1"></a>        grid<span class="op">=</span><span class="bu">dict</span>(rows<span class="op">=</span><span class="dv">1</span>, columns<span class="op">=</span>(year_end<span class="op">-</span>year_begin<span class="op">+</span><span class="dv">1</span>), pattern<span class="op">=</span><span class="st">'independent'</span>),</span>
-<span id="cb27-24"><a href="#cb27-24" aria-hidden="true" tabindex="-1"></a>        legend<span class="op">=</span><span class="bu">dict</span>(title<span class="op">=</span><span class="st">'Year'</span>, itemsizing<span class="op">=</span><span class="st">'constant'</span>, font<span class="op">=</span><span class="bu">dict</span>(size<span class="op">=</span><span class="dv">10</span>))</span>
-<span id="cb27-25"><a href="#cb27-25" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb27-26"><a href="#cb27-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-27"><a href="#cb27-27" aria-hidden="true" tabindex="-1"></a>    fig.show()</span>
-<span id="cb27-28"><a href="#cb27-28" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-29"><a href="#cb27-29" aria-hidden="true" tabindex="-1"></a>db_file <span class="op">=</span> <span class="st">"TEMP.db"</span>  <span class="co"># Replace with our actual database file path</span></span>
-<span id="cb27-30"><a href="#cb27-30" aria-hidden="true" tabindex="-1"></a>country <span class="op">=</span> <span class="st">"India"</span></span>
-<span id="cb27-31"><a href="#cb27-31" aria-hidden="true" tabindex="-1"></a>year_begin <span class="op">=</span> <span class="dv">1980</span></span>
-<span id="cb27-32"><a href="#cb27-32" aria-hidden="true" tabindex="-1"></a>year_end <span class="op">=</span> <span class="dv">1985</span></span>
-<span id="cb27-33"><a href="#cb27-33" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-34"><a href="#cb27-34" aria-hidden="true" tabindex="-1"></a>plot_faceted_temperature_scatter(db_file, country, year_begin, year_end)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> plotly.express <span class="im">as</span> px</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> calendar</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> plot_faceted_temperature_scatter(db_file, country, year_begin, year_end):</span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>    df <span class="op">=</span> query_temperature_by_month(db_file, country, year_begin, year_end)</span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Plotly uses string values for color mapping</span></span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>    df[<span class="st">'Year'</span>] <span class="op">=</span> df[<span class="st">'Year'</span>].astype(<span class="bu">str</span>)</span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a>    fig <span class="op">=</span> px.scatter(df, x<span class="op">=</span><span class="st">'Month'</span>, y<span class="op">=</span><span class="st">'Avg_Temp'</span>, color<span class="op">=</span><span class="st">'Year'</span>, facet_col<span class="op">=</span><span class="st">'Year'</span>,</span>
+<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a>                     title<span class="op">=</span><span class="ss">f'Monthly Temperature Trends in </span><span class="sc">{</span>country<span class="sc">}</span><span class="ss"> (</span><span class="sc">{</span>year_begin<span class="sc">}</span><span class="ss">-</span><span class="sc">{</span>year_end<span class="sc">}</span><span class="ss">)'</span>,</span>
+<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a>                     labels<span class="op">=</span>{<span class="st">'Avg_Temp'</span>: <span class="st">'Average Temperature (°C)'</span>, <span class="st">'Month'</span>: <span class="st">'Month'</span>},</span>
+<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a>                     width<span class="op">=</span><span class="dv">1500</span>, height<span class="op">=</span><span class="dv">300</span>)</span>
+<span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-15"><a href="#cb26-15" aria-hidden="true" tabindex="-1"></a>    fig.for_each_annotation(<span class="kw">lambda</span> a: a.update(text<span class="op">=</span>a.text.split(<span class="st">"="</span>)[<span class="op">-</span><span class="dv">1</span>]))</span>
+<span id="cb26-16"><a href="#cb26-16" aria-hidden="true" tabindex="-1"></a>    fig.update_xaxes(tickvals<span class="op">=</span><span class="bu">list</span>(<span class="bu">range</span>(<span class="dv">1</span>, <span class="dv">13</span>)), ticktext<span class="op">=</span><span class="bu">list</span>(calendar.month_abbr[<span class="dv">1</span>:]), tickangle<span class="op">=</span><span class="dv">45</span>)</span>
+<span id="cb26-17"><a href="#cb26-17" aria-hidden="true" tabindex="-1"></a>    fig.update_yaxes(showgrid<span class="op">=</span><span class="va">True</span>, gridwidth<span class="op">=</span><span class="dv">1</span>, gridcolor<span class="op">=</span><span class="st">'LightGrey'</span>)</span>
+<span id="cb26-18"><a href="#cb26-18" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb26-19"><a href="#cb26-19" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Adjust the layout</span></span>
+<span id="cb26-20"><a href="#cb26-20" aria-hidden="true" tabindex="-1"></a>    fig.update_layout(</span>
+<span id="cb26-21"><a href="#cb26-21" aria-hidden="true" tabindex="-1"></a>        margin<span class="op">=</span><span class="bu">dict</span>(l<span class="op">=</span><span class="dv">20</span>, r<span class="op">=</span><span class="dv">20</span>, t<span class="op">=</span><span class="dv">30</span>, b<span class="op">=</span><span class="dv">20</span>),</span>
+<span id="cb26-22"><a href="#cb26-22" aria-hidden="true" tabindex="-1"></a>        plot_bgcolor<span class="op">=</span><span class="st">'white'</span>,</span>
+<span id="cb26-23"><a href="#cb26-23" aria-hidden="true" tabindex="-1"></a>        grid<span class="op">=</span><span class="bu">dict</span>(rows<span class="op">=</span><span class="dv">1</span>, columns<span class="op">=</span>(year_end<span class="op">-</span>year_begin<span class="op">+</span><span class="dv">1</span>), pattern<span class="op">=</span><span class="st">'independent'</span>),</span>
+<span id="cb26-24"><a href="#cb26-24" aria-hidden="true" tabindex="-1"></a>        legend<span class="op">=</span><span class="bu">dict</span>(title<span class="op">=</span><span class="st">'Year'</span>, itemsizing<span class="op">=</span><span class="st">'constant'</span>, font<span class="op">=</span><span class="bu">dict</span>(size<span class="op">=</span><span class="dv">10</span>))</span>
+<span id="cb26-25"><a href="#cb26-25" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb26-26"><a href="#cb26-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-27"><a href="#cb26-27" aria-hidden="true" tabindex="-1"></a>    fig.show()</span>
+<span id="cb26-28"><a href="#cb26-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-29"><a href="#cb26-29" aria-hidden="true" tabindex="-1"></a>db_file <span class="op">=</span> <span class="st">"TEMP.db"</span>  <span class="co"># Replace with our actual database file path</span></span>
+<span id="cb26-30"><a href="#cb26-30" aria-hidden="true" tabindex="-1"></a>country <span class="op">=</span> <span class="st">"India"</span></span>
+<span id="cb26-31"><a href="#cb26-31" aria-hidden="true" tabindex="-1"></a>year_begin <span class="op">=</span> <span class="dv">1980</span></span>
+<span id="cb26-32"><a href="#cb26-32" aria-hidden="true" tabindex="-1"></a>year_end <span class="op">=</span> <span class="dv">1985</span></span>
+<span id="cb26-33"><a href="#cb26-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-34"><a href="#cb26-34" aria-hidden="true" tabindex="-1"></a>plot_faceted_temperature_scatter(db_file, country, year_begin, year_end)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <iframe scrolling="no" width="1520px" height="320" src="iframe_figures/figure_121.html" frameborder="0" allowfullscreen=""></iframe>
 </div>
@@ -751,107 +745,129 @@ DataFrameGroupBy.apply operated on the grouping columns. This behavior is deprec
 </section>
 <section id="q3-how-does-the-monthly-temperature-anomaly-vary-across-different-stations-within-a-specific-country-for-a-given-year" class="level4">
 <h4 class="anchored" data-anchor-id="q3-how-does-the-monthly-temperature-anomaly-vary-across-different-stations-within-a-specific-country-for-a-given-year">Q3: How does the monthly temperature anomaly vary across different stations within a specific country for a given year?</h4>
-<div id="cell-52" class="cell" data-execution_count="206">
-<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> climate_database <span class="im">import</span> query_temperature_anomaly_by_region <span class="co"># Import the function</span></span>
-<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> inspect <span class="co"># Access the source code info</span></span>
-<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(inspect.getsource(query_temperature_anomaly_by_region)) <span class="co"># Print the source code</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-error">
-<pre><code>ImportError: cannot import name 'query_temperature_anomaly_by_region' from 'climate_database' (/Users/mabook/Desktop/PIC16B/posts/16BHW1/climate_database.py)</code></pre>
+<div id="cell-52" class="cell" data-execution_count="223">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> climate_database <span class="im">import</span> query_temperature_anomaly_by_region <span class="co"># Import the function</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> inspect <span class="co"># Access the source code info</span></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(inspect.getsource(query_temperature_anomaly_by_region)) <span class="co"># Print the source code</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+def query_temperature_anomaly_by_region(db_file, country, year):
+    """
+    Query monthly temperature data from a SQLite database for each station in a specific country and year.
+    Calculate the anomaly as the deviation from the simple average of the temperatures for each month.
+    """
+    conn = sqlite3.connect(db_file)
+    # First, calculate the simple average temperature for each month across all years
+    monthly_avg_cmd = """
+        SELECT
+            Month,
+            AVG(Temp) as Monthly_Avg
+        FROM temperatures
+        GROUP BY Month
+    """
+    monthly_avg_df = pd.read_sql_query(monthly_avg_cmd, conn)  
+    # Then, join this average with the temperature data for the specified year
+    cmd = """
+        SELECT 
+            T.Year,
+            T.Month,
+            S.NAME AS Station_Name,
+            S.LATITUDE,
+            S.LONGITUDE,
+            (T.Temp - MA.Monthly_Avg) AS Temp_Anomaly
+        FROM temperatures T
+        JOIN stations S ON S.ID = T.ID
+        JOIN countries C ON C.[FIPS 10-4] = SUBSTRING(S.ID, 1, 2)
+        JOIN ({}) MA ON T.Month = MA.Month
+        WHERE C.Name = ? AND T.Year = ?
+        ORDER BY T.Month, S.LATITUDE, S.LONGITUDE
+    """.format(monthly_avg_cmd)
+    
+    params = (country, year)
+    result_df = pd.read_sql_query(cmd, conn, params=params)
+    conn.close()
+    return result_df
+</code></pre>
 </div>
 </div>
 <p>We here define the function query_temperature_anomaly_by_region to calculate and analyze the temperature anomaly for each weather station in a specific country during a given year. This function queries a SQLite database to obtain monthly temperature data and computes the anomaly by determining the deviation of each station’s temperature from the monthly average across all years. This analysis helps in identifying unusual temperature patterns and assessing climate variability at a regional level.</p>
-<div id="cell-54" class="cell" data-execution_count="126">
-<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> query_temperature_anomaly_by_region(db_file, country, year):</span>
-<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
-<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a><span class="co">    Query monthly temperature data from a SQLite database for each station in a specific country and year.</span></span>
-<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a><span class="co">    Calculate the anomaly as the deviation from the simple average of the temperatures for each month.</span></span>
-<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
-<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>    conn <span class="op">=</span> sqlite3.<span class="ex">connect</span>(db_file)</span>
-<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a>    <span class="co"># First, calculate the simple average temperature for each month across all years</span></span>
-<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a>    monthly_avg_cmd <span class="op">=</span> <span class="st">"""</span></span>
-<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a><span class="st">        SELECT</span></span>
-<span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a><span class="st">            Month,</span></span>
-<span id="cb30-11"><a href="#cb30-11" aria-hidden="true" tabindex="-1"></a><span class="st">            AVG(Temp) as Monthly_Avg</span></span>
-<span id="cb30-12"><a href="#cb30-12" aria-hidden="true" tabindex="-1"></a><span class="st">        FROM temperatures</span></span>
-<span id="cb30-13"><a href="#cb30-13" aria-hidden="true" tabindex="-1"></a><span class="st">        GROUP BY Month</span></span>
-<span id="cb30-14"><a href="#cb30-14" aria-hidden="true" tabindex="-1"></a><span class="st">    """</span></span>
-<span id="cb30-15"><a href="#cb30-15" aria-hidden="true" tabindex="-1"></a>    monthly_avg_df <span class="op">=</span> pd.read_sql_query(monthly_avg_cmd, conn)</span>
-<span id="cb30-16"><a href="#cb30-16" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb30-17"><a href="#cb30-17" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Then, join this average with the temperature data for the specified year</span></span>
-<span id="cb30-18"><a href="#cb30-18" aria-hidden="true" tabindex="-1"></a>    cmd <span class="op">=</span> <span class="st">"""</span></span>
-<span id="cb30-19"><a href="#cb30-19" aria-hidden="true" tabindex="-1"></a><span class="st">        SELECT </span></span>
-<span id="cb30-20"><a href="#cb30-20" aria-hidden="true" tabindex="-1"></a><span class="st">            T.Year,</span></span>
-<span id="cb30-21"><a href="#cb30-21" aria-hidden="true" tabindex="-1"></a><span class="st">            T.Month,</span></span>
-<span id="cb30-22"><a href="#cb30-22" aria-hidden="true" tabindex="-1"></a><span class="st">            S.NAME AS Station_Name,</span></span>
-<span id="cb30-23"><a href="#cb30-23" aria-hidden="true" tabindex="-1"></a><span class="st">            S.LATITUDE,</span></span>
-<span id="cb30-24"><a href="#cb30-24" aria-hidden="true" tabindex="-1"></a><span class="st">            S.LONGITUDE,</span></span>
-<span id="cb30-25"><a href="#cb30-25" aria-hidden="true" tabindex="-1"></a><span class="st">            (T.Temp - MA.Monthly_Avg) AS Temp_Anomaly</span></span>
-<span id="cb30-26"><a href="#cb30-26" aria-hidden="true" tabindex="-1"></a><span class="st">        FROM temperatures T</span></span>
-<span id="cb30-27"><a href="#cb30-27" aria-hidden="true" tabindex="-1"></a><span class="st">        JOIN stations S ON S.ID = T.ID</span></span>
-<span id="cb30-28"><a href="#cb30-28" aria-hidden="true" tabindex="-1"></a><span class="st">        JOIN countries C ON C.[FIPS 10-4] = SUBSTRING(S.ID, 1, 2)</span></span>
-<span id="cb30-29"><a href="#cb30-29" aria-hidden="true" tabindex="-1"></a><span class="st">        JOIN (</span><span class="sc">{}</span><span class="st">) MA ON T.Month = MA.Month</span></span>
-<span id="cb30-30"><a href="#cb30-30" aria-hidden="true" tabindex="-1"></a><span class="st">        WHERE C.Name = ? AND T.Year = ?</span></span>
-<span id="cb30-31"><a href="#cb30-31" aria-hidden="true" tabindex="-1"></a><span class="st">        ORDER BY T.Month, S.LATITUDE, S.LONGITUDE</span></span>
-<span id="cb30-32"><a href="#cb30-32" aria-hidden="true" tabindex="-1"></a><span class="st">    """</span>.<span class="bu">format</span>(monthly_avg_cmd)</span>
-<span id="cb30-33"><a href="#cb30-33" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb30-34"><a href="#cb30-34" aria-hidden="true" tabindex="-1"></a>    params <span class="op">=</span> (country, year)</span>
-<span id="cb30-35"><a href="#cb30-35" aria-hidden="true" tabindex="-1"></a>    result_df <span class="op">=</span> pd.read_sql_query(cmd, conn, params<span class="op">=</span>params)</span>
-<span id="cb30-36"><a href="#cb30-36" aria-hidden="true" tabindex="-1"></a>    conn.close()</span>
-<span id="cb30-37"><a href="#cb30-37" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> result_df</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
 <p>We define the function plot_temperature_anomaly_facets to visualize the temperature anomaly across different regions within a country for a specific year. This function processes temperature data to highlight regional climate variations, using a faceted line chart to distinguish anomalies by geographical zones. By segmenting the data based on latitude, it offers a nuanced view of climatic trends, aiding in the detailed analysis of regional temperature deviations.</p>
-<div id="cell-56" class="cell" data-execution_count="132">
-<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> plotly.express <span class="im">as</span> px</span>
-<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> plot_temperature_anomaly_facets(db_file, country, year):</span>
-<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
-<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a><span class="co">    Visualize the temperature anomalies across different regions within a specific country and year.</span></span>
-<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a><span class="co">    This function creates a faceted line chart representing the temperature anomalies for various stations,</span></span>
-<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a><span class="co">    categorized by their geographical latitude into regions such as North, Central-North, Central-South, and South.</span></span>
-<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a><span class="co">    The anomalies are calculated as deviations from the historical average temperatures for each month.</span></span>
-<span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
-<span id="cb31-11"><a href="#cb31-11" aria-hidden="true" tabindex="-1"></a>    df <span class="op">=</span> query_temperature_anomaly_by_region(db_file, country, year)</span>
-<span id="cb31-12"><a href="#cb31-12" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb31-13"><a href="#cb31-13" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Assuming we want to facet by latitude to represent different regions</span></span>
-<span id="cb31-14"><a href="#cb31-14" aria-hidden="true" tabindex="-1"></a>    df[<span class="st">'Region'</span>] <span class="op">=</span> pd.qcut(df[<span class="st">'LATITUDE'</span>], q<span class="op">=</span><span class="dv">4</span>, labels<span class="op">=</span>[<span class="st">'North'</span>, <span class="st">'Central-North'</span>, <span class="st">'Central-South'</span>, <span class="st">'South'</span>])</span>
-<span id="cb31-15"><a href="#cb31-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb31-16"><a href="#cb31-16" aria-hidden="true" tabindex="-1"></a>    fig <span class="op">=</span> px.line(df, x<span class="op">=</span><span class="st">'Month'</span>, y<span class="op">=</span><span class="st">'Temp_Anomaly'</span>, color<span class="op">=</span><span class="st">'Station_Name'</span>,</span>
-<span id="cb31-17"><a href="#cb31-17" aria-hidden="true" tabindex="-1"></a>                  facet_row<span class="op">=</span><span class="st">'Region'</span>, title<span class="op">=</span><span class="ss">f'Temperature Anomaly by Region in </span><span class="sc">{</span>country<span class="sc">}</span><span class="ss"> for Year </span><span class="sc">{</span>year<span class="sc">}</span><span class="ss">'</span>,</span>
-<span id="cb31-18"><a href="#cb31-18" aria-hidden="true" tabindex="-1"></a>                  labels<span class="op">=</span>{<span class="st">'Temp_Anomaly'</span>: <span class="st">'Temp Anomaly (°C)'</span>, <span class="st">'Month'</span>: <span class="st">'Month'</span>})</span>
-<span id="cb31-19"><a href="#cb31-19" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb31-20"><a href="#cb31-20" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Make the figure larger</span></span>
-<span id="cb31-21"><a href="#cb31-21" aria-hidden="true" tabindex="-1"></a>    fig.update_layout(width<span class="op">=</span><span class="dv">1200</span>, height<span class="op">=</span><span class="dv">800</span>)</span>
-<span id="cb31-22"><a href="#cb31-22" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb31-23"><a href="#cb31-23" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Move the legend outside of the plot to the right</span></span>
-<span id="cb31-24"><a href="#cb31-24" aria-hidden="true" tabindex="-1"></a>    fig.update_layout(legend<span class="op">=</span><span class="bu">dict</span>(</span>
-<span id="cb31-25"><a href="#cb31-25" aria-hidden="true" tabindex="-1"></a>        orientation<span class="op">=</span><span class="st">"v"</span>,</span>
-<span id="cb31-26"><a href="#cb31-26" aria-hidden="true" tabindex="-1"></a>        yanchor<span class="op">=</span><span class="st">"bottom"</span>,</span>
-<span id="cb31-27"><a href="#cb31-27" aria-hidden="true" tabindex="-1"></a>        y<span class="op">=</span><span class="fl">0.5</span>,</span>
-<span id="cb31-28"><a href="#cb31-28" aria-hidden="true" tabindex="-1"></a>        xanchor<span class="op">=</span><span class="st">"right"</span>,</span>
-<span id="cb31-29"><a href="#cb31-29" aria-hidden="true" tabindex="-1"></a>        x<span class="op">=</span><span class="fl">1.05</span></span>
-<span id="cb31-30"><a href="#cb31-30" aria-hidden="true" tabindex="-1"></a>    ))</span>
-<span id="cb31-31"><a href="#cb31-31" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb31-32"><a href="#cb31-32" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Split the legend into columns</span></span>
-<span id="cb31-33"><a href="#cb31-33" aria-hidden="true" tabindex="-1"></a>    fig.update_layout(legend<span class="op">=</span><span class="bu">dict</span>(</span>
-<span id="cb31-34"><a href="#cb31-34" aria-hidden="true" tabindex="-1"></a>        traceorder<span class="op">=</span><span class="st">"normal"</span>,</span>
-<span id="cb31-35"><a href="#cb31-35" aria-hidden="true" tabindex="-1"></a>        itemsizing<span class="op">=</span><span class="st">'constant'</span>,</span>
-<span id="cb31-36"><a href="#cb31-36" aria-hidden="true" tabindex="-1"></a>        font<span class="op">=</span><span class="bu">dict</span>(size<span class="op">=</span><span class="dv">10</span>),</span>
-<span id="cb31-37"><a href="#cb31-37" aria-hidden="true" tabindex="-1"></a>    ))</span>
-<span id="cb31-38"><a href="#cb31-38" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb31-39"><a href="#cb31-39" aria-hidden="true" tabindex="-1"></a>    fig.update_xaxes(tickvals<span class="op">=</span><span class="bu">list</span>(<span class="bu">range</span>(<span class="dv">1</span>, <span class="dv">13</span>)), ticktext<span class="op">=</span><span class="bu">list</span>(calendar.month_abbr[<span class="dv">1</span>:]))</span>
-<span id="cb31-40"><a href="#cb31-40" aria-hidden="true" tabindex="-1"></a>    fig.update_yaxes(showgrid<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb31-41"><a href="#cb31-41" aria-hidden="true" tabindex="-1"></a>    fig.show()</span>
-<span id="cb31-42"><a href="#cb31-42" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb31-43"><a href="#cb31-43" aria-hidden="true" tabindex="-1"></a>db_file <span class="op">=</span> <span class="st">"TEMP.db"</span>  <span class="co"># Replace with your actual database file path</span></span>
-<span id="cb31-44"><a href="#cb31-44" aria-hidden="true" tabindex="-1"></a>country <span class="op">=</span> <span class="st">"India"</span></span>
-<span id="cb31-45"><a href="#cb31-45" aria-hidden="true" tabindex="-1"></a>year <span class="op">=</span> <span class="dv">2020</span></span>
-<span id="cb31-46"><a href="#cb31-46" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb31-47"><a href="#cb31-47" aria-hidden="true" tabindex="-1"></a>plot_temperature_anomaly_facets(db_file, country, year)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-55" class="cell" data-execution_count="132">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> plotly.express <span class="im">as</span> px</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> plot_temperature_anomaly_facets(db_file, country, year):</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a><span class="co">    Visualize the temperature anomalies across different regions within a specific country and year.</span></span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a><span class="co">    This function creates a faceted line chart representing the temperature anomalies for various stations,</span></span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a><span class="co">    categorized by their geographical latitude into regions such as North, Central-North, Central-South, and South.</span></span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a><span class="co">    The anomalies are calculated as deviations from the historical average temperatures for each month.</span></span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a>    df <span class="op">=</span> query_temperature_anomaly_by_region(db_file, country, year)</span>
+<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb29-13"><a href="#cb29-13" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Assuming we want to facet by latitude to represent different regions</span></span>
+<span id="cb29-14"><a href="#cb29-14" aria-hidden="true" tabindex="-1"></a>    df[<span class="st">'Region'</span>] <span class="op">=</span> pd.qcut(df[<span class="st">'LATITUDE'</span>], q<span class="op">=</span><span class="dv">4</span>, labels<span class="op">=</span>[<span class="st">'North'</span>, <span class="st">'Central-North'</span>, <span class="st">'Central-South'</span>, <span class="st">'South'</span>])</span>
+<span id="cb29-15"><a href="#cb29-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-16"><a href="#cb29-16" aria-hidden="true" tabindex="-1"></a>    fig <span class="op">=</span> px.line(df, x<span class="op">=</span><span class="st">'Month'</span>, y<span class="op">=</span><span class="st">'Temp_Anomaly'</span>, color<span class="op">=</span><span class="st">'Station_Name'</span>,</span>
+<span id="cb29-17"><a href="#cb29-17" aria-hidden="true" tabindex="-1"></a>                  facet_row<span class="op">=</span><span class="st">'Region'</span>, title<span class="op">=</span><span class="ss">f'Temperature Anomaly by Region in </span><span class="sc">{</span>country<span class="sc">}</span><span class="ss"> for Year </span><span class="sc">{</span>year<span class="sc">}</span><span class="ss">'</span>,</span>
+<span id="cb29-18"><a href="#cb29-18" aria-hidden="true" tabindex="-1"></a>                  labels<span class="op">=</span>{<span class="st">'Temp_Anomaly'</span>: <span class="st">'Temp Anomaly (°C)'</span>, <span class="st">'Month'</span>: <span class="st">'Month'</span>})</span>
+<span id="cb29-19"><a href="#cb29-19" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb29-20"><a href="#cb29-20" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Make the figure larger</span></span>
+<span id="cb29-21"><a href="#cb29-21" aria-hidden="true" tabindex="-1"></a>    fig.update_layout(width<span class="op">=</span><span class="dv">1200</span>, height<span class="op">=</span><span class="dv">800</span>)</span>
+<span id="cb29-22"><a href="#cb29-22" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb29-23"><a href="#cb29-23" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Move the legend outside of the plot to the right</span></span>
+<span id="cb29-24"><a href="#cb29-24" aria-hidden="true" tabindex="-1"></a>    fig.update_layout(legend<span class="op">=</span><span class="bu">dict</span>(</span>
+<span id="cb29-25"><a href="#cb29-25" aria-hidden="true" tabindex="-1"></a>        orientation<span class="op">=</span><span class="st">"v"</span>,</span>
+<span id="cb29-26"><a href="#cb29-26" aria-hidden="true" tabindex="-1"></a>        yanchor<span class="op">=</span><span class="st">"bottom"</span>,</span>
+<span id="cb29-27"><a href="#cb29-27" aria-hidden="true" tabindex="-1"></a>        y<span class="op">=</span><span class="fl">0.5</span>,</span>
+<span id="cb29-28"><a href="#cb29-28" aria-hidden="true" tabindex="-1"></a>        xanchor<span class="op">=</span><span class="st">"right"</span>,</span>
+<span id="cb29-29"><a href="#cb29-29" aria-hidden="true" tabindex="-1"></a>        x<span class="op">=</span><span class="fl">1.05</span></span>
+<span id="cb29-30"><a href="#cb29-30" aria-hidden="true" tabindex="-1"></a>    ))</span>
+<span id="cb29-31"><a href="#cb29-31" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb29-32"><a href="#cb29-32" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Split the legend into columns</span></span>
+<span id="cb29-33"><a href="#cb29-33" aria-hidden="true" tabindex="-1"></a>    fig.update_layout(legend<span class="op">=</span><span class="bu">dict</span>(</span>
+<span id="cb29-34"><a href="#cb29-34" aria-hidden="true" tabindex="-1"></a>        traceorder<span class="op">=</span><span class="st">"normal"</span>,</span>
+<span id="cb29-35"><a href="#cb29-35" aria-hidden="true" tabindex="-1"></a>        itemsizing<span class="op">=</span><span class="st">'constant'</span>,</span>
+<span id="cb29-36"><a href="#cb29-36" aria-hidden="true" tabindex="-1"></a>        font<span class="op">=</span><span class="bu">dict</span>(size<span class="op">=</span><span class="dv">10</span>),</span>
+<span id="cb29-37"><a href="#cb29-37" aria-hidden="true" tabindex="-1"></a>    ))</span>
+<span id="cb29-38"><a href="#cb29-38" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb29-39"><a href="#cb29-39" aria-hidden="true" tabindex="-1"></a>    fig.update_xaxes(tickvals<span class="op">=</span><span class="bu">list</span>(<span class="bu">range</span>(<span class="dv">1</span>, <span class="dv">13</span>)), ticktext<span class="op">=</span><span class="bu">list</span>(calendar.month_abbr[<span class="dv">1</span>:]))</span>
+<span id="cb29-40"><a href="#cb29-40" aria-hidden="true" tabindex="-1"></a>    fig.update_yaxes(showgrid<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb29-41"><a href="#cb29-41" aria-hidden="true" tabindex="-1"></a>    fig.show()</span>
+<span id="cb29-42"><a href="#cb29-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-43"><a href="#cb29-43" aria-hidden="true" tabindex="-1"></a>db_file <span class="op">=</span> <span class="st">"TEMP.db"</span>  </span>
+<span id="cb29-44"><a href="#cb29-44" aria-hidden="true" tabindex="-1"></a>country <span class="op">=</span> <span class="st">"India"</span></span>
+<span id="cb29-45"><a href="#cb29-45" aria-hidden="true" tabindex="-1"></a>year <span class="op">=</span> <span class="dv">2020</span></span>
+<span id="cb29-46"><a href="#cb29-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-47"><a href="#cb29-47" aria-hidden="true" tabindex="-1"></a>plot_temperature_anomaly_facets(db_file, country, year)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <iframe scrolling="no" width="1220px" height="820" src="iframe_figures/figure_132.html" frameborder="0" allowfullscreen=""></iframe>
 </div>
 </div>
+</section>
+</section>
+<section id="summary-of-temperature-analysis-functions" class="level3">
+<h3 class="anchored" data-anchor-id="summary-of-temperature-analysis-functions">Summary of Temperature Analysis Functions</h3>
+<ol type="1">
+<li><strong><code>plot_temperature_distribution</code> Function</strong>:
+<ul>
+<li><strong>Purpose</strong>: We want to visualizes the temperature distribution across various weather stations in a specific country for a given year.</li>
+<li><strong>Methodology</strong>: Retrieves temperature data from a SQLite database and generates an interactive histogram using Plotly. This function provides a visual representation of the range and distribution of temperatures, allowing for an easy understanding of climatic conditions.</li>
+<li><strong>Usage</strong>: Ideal for analyzing the overall temperature trends and identifying extreme weather occurrences within a year.</li>
+</ul></li>
+<li><strong><code>query_temperature_by_month</code> Function</strong>:
+<ul>
+<li><strong>Purpose</strong>: We want to alculate the average monthly temperature for a specified country over a given range of years.</li>
+<li><strong>Methodology</strong>: Executes an SQL query to aggregate temperature data from various stations, grouped by month and year. It returns a pandas DataFrame with the average temperature for each month, facilitating detailed climatic trend analysis over time.</li>
+<li><strong>Usage</strong>: Suitable for studying seasonal temperature variations and long-term climate trends in a specific region.</li>
+</ul></li>
+<li><strong><code>query_temperature_anomaly_by_region</code> Function</strong>:
+<ul>
+<li><strong>Purpose</strong>: We want to determine the temperature anomaly for each station in a specific country and year, calculating the deviation from the historical monthly average.</li>
+<li><strong>Methodology</strong>: After calculating the simple average temperature for each month across all years, it joins this data with the specified year’s temperature records to compute the anomaly. The result is a DataFrame detailing the temperature anomalies by station.</li>
+<li><strong>Usage</strong>: Useful for identifying unusual temperature patterns and assessing regional climate variability.</li>
+</ul></li>
+</ol>
 <p>Thank you for your time!</p>
 
 
